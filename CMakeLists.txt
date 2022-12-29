@@ -13,7 +13,7 @@ add_subdirectory(src/ext)
 #)
 #target_link_libraries(lightfold PUBLIC tinyexr)
 
-add_executable(lightfold src/lightfold/lightfold.cpp)
+add_executable(lightfold src/lightfold/lightfold.cpp src/lightfold/image.cpp)
 set_target_properties(lightfold  PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
 target_include_directories(lightfold PRIVATE ${CMAKE_SOURCE_DIR}/src/ext)
 target_include_directories(lightfold PUBLIC ${CMAKE_SOURCE_DIR}/src)

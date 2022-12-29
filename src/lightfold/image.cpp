@@ -1,5 +1,8 @@
 #include "image.h"
 
+#define TINYEXR_IMPLEMENTATION
+#include <tinyexr/tinyexr.h>
+
 int WriteEXR(const float* rgb, int width, int height, const char* outfilename) {
 
     EXRHeader header;
@@ -57,5 +60,5 @@ int WriteEXR(const float* rgb, int width, int height, const char* outfilename) {
     free(header.channels);
     free(header.pixel_types);
     free(header.requested_pixel_types);
-
+    return 0;
 }
