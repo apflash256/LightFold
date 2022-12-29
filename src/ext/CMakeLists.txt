@@ -1,1 +1,3 @@
-set(TINYEXR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/tinyexr" CACHE INTERNAL "")
+# tinyexr
+add_subdirectory(tinyexr)
+add_library(tinyexr::tinyexr ALIAS tinyexr)

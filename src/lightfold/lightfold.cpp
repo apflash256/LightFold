@@ -1,5 +1,5 @@
 #include <iostream>
-#include "image.h"
+#include <lightfold/image.h>
 
 int main(void) {
 	std::cout << "Hello World!";

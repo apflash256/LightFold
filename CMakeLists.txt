@@ -1,13 +1,20 @@
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.12)
+project(LightFold LANGUAGES C CXX)
 
-project(lightfold)
-
-### Debug
-#message("CMAKE_SOURCE_DIR: " ${CMAKE_SOURCE_DIR})
-#message("CMAKE_BINARY_DIR: " ${CMAKE_BINARY_DIR})
-#message("CMAKE_MODULE_PATH: " ${CMAKE_MODULE_PATH})
-#message("CMAKE_CURRENT_SOURCE_DIR: " ${CMAKE_CURRENT_SOURCE_DIR})
-
-### External
+# ext
 add_subdirectory(src/ext)
-add_subdirectory(src/lightfold)
+
+# LensSim - include and link
+
+#target_include_directories(lightfold
+#  PUBLIC
+#    src
+#    src/lightfold
+#)
+#target_link_libraries(lightfold PUBLIC tinyexr)
+
+add_executable(lightfold src/lightfold/lightfold.cpp)
+set_target_properties(lightfold  PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
+target_include_directories(lightfold PRIVATE ${CMAKE_SOURCE_DIR}/src/ext)
+target_include_directories(lightfold PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(lightfold PRIVATE tinyexr::tinyexr)
