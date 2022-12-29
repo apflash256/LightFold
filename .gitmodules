@@ -1,0 +1,3 @@
+[submodule "src/ext/tinyexr"]
+	path = src/ext/tinyexr
+	url = https://github.com/apflash256/tinyexr.git
