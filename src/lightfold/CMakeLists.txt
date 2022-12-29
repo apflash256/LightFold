@@ -4,5 +4,7 @@ add_executable(lightfold lightfold.cpp)
 
 target_include_directories(
     lightfold
-    PUBLIC ${TINYEXR_INCLUDE_DIR}
+    PUBLIC
+        ${TINYEXR_INCLUDE_DIR}
+        ${TINYEXR_INCLUDE_DIR}/deps/miniz
 )
