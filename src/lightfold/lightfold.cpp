@@ -1,5 +1,6 @@
 #include <iostream>
-#include <lightfold/image.h>
+#include <imageio.h>
+#include <math/vecmath.h>
 
 int main(void) {
 	std::cout << "Hello World!";
