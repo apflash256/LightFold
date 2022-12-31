@@ -1,4 +1,4 @@
-file(GLOB_RECURSE LIGHTFOLD_SRC "*.cpp" "*.c")
+file(GLOB_RECURSE LIGHTFOLD_SRC "*.cpp")
 
 add_executable(lightfold ${LIGHTFOLD_SRC})
 set_target_properties(lightfold  PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
