@@ -218,8 +218,8 @@ namespace lightfold {
     class Point2 : public Tuple2<Point2, T> {
     public:
         // Point2 Public Methods
-        using Tuple2<Point2, T>::x;
-        using Tuple2<Point2, T>::y;
+        //using Tuple2<Point2, T>::x;
+        //using Tuple2<Point2, T>::y;
         using Tuple2<Point2, T>::operator+;
         using Tuple2<Point2, T>::operator+=;
         using Tuple2<Point2, T>::operator*;
@@ -269,9 +269,9 @@ namespace lightfold {
     class Point3 : public Tuple3<Point3, T> {
     public:
         // Point3 Public Methods
-        using Tuple3<Point3, T>::x;
-        using Tuple3<Point3, T>::y;
-        using Tuple3<Point3, T>::z;
+        //using Tuple3<Point3, T>::x;
+        //using Tuple3<Point3, T>::y;
+        //using Tuple3<Point3, T>::z;
         using Tuple3<Point3, T>::operator+;
         using Tuple3<Point3, T>::operator+=;
         using Tuple3<Point3, T>::operator*;
@@ -324,7 +324,6 @@ namespace lightfold {
         using Point3<Interval>::x;
         using Point3<Interval>::y;
         using Point3<Interval>::z;
-        using Point3<Interval>::HasNaN;
         using Point3<Interval>::operator+;
         using Point3<Interval>::operator*;
         using Point3<Interval>::operator*=;
@@ -374,8 +373,8 @@ namespace lightfold {
     class GeoVector2 : public Tuple2<GeoVector2, T> {
     public:
         // GeoVector2 Public Methods
-        using Tuple2<GeoVector2, T>::x;
-        using Tuple2<GeoVector2, T>::y;
+        //using Tuple2<GeoVector2, T>::x;
+        //using Tuple2<GeoVector2, T>::y;
 
         GeoVector2() = default;
         GeoVector2(T x, T y) : Tuple2<lightfold::GeoVector2, T>(x, y) {}
@@ -390,9 +389,9 @@ namespace lightfold {
     class GeoVector3 : public Tuple3<GeoVector3, T> {
     public:
         // Vector3 Public Methods
-        using Tuple3<GeoVector3, T>::x;
-        using Tuple3<GeoVector3, T>::y;
-        using Tuple3<GeoVector3, T>::z;
+        //using Tuple3<GeoVector3, T>::x;
+        //using Tuple3<GeoVector3, T>::y;
+        //using Tuple3<GeoVector3, T>::z;
 
         GeoVector3() = default;
         GeoVector3(T x, T y, T z) : Tuple3<lightfold::GeoVector3, T>(x, y, z) {}
@@ -413,7 +412,6 @@ namespace lightfold {
         using Vector3<Interval>::x;
         using Vector3<Interval>::y;
         using Vector3<Interval>::z;
-        using Vector3<Interval>::HasNaN;
         using Vector3<Interval>::operator+;
         using Vector3<Interval>::operator+=;
         using Vector3<Interval>::operator*;
@@ -438,9 +436,17 @@ namespace lightfold {
     class TanVector3 : public GeoVector3<T> {
     public:
         // TanVector3 Public Methods
-        //using Tuple3<TanVector3, T>::x;
-        //using Tuple3<TanVector3, T>::y;
-        //using Tuple3<TanVector3, T>::z;
+        using GeoVector3<T>::operator+;
+        using GeoVector3<T>::operator+=;
+        using GeoVector3<T>::operator-;
+        using GeoVector3<T>::operator-=;
+        using GeoVector3<T>::operator*;
+        using GeoVector3<T>::operator*=;
+        using GeoVector3<T>::operator/;
+        using GeoVector3<T>::operator/=;
+        using GeoVector3<T>::operator==;
+        using GeoVector3<T>::operator!=;
+        using GeoVector3<T>::operator[];
 
         TanVector3() = default;
         TanVector3(T x, T y, T z) : GeoVector3<T>(x, y, z) {}
@@ -453,12 +459,17 @@ namespace lightfold {
     class CotVector3 : public GeoVector3<T> {
     public:
         // CotVector3 Public Methods
-        //using Tuple3<CotVector3, T>::x;
-        //using Tuple3<CotVector3, T>::y;
-        //using Tuple3<CotVector3, T>::z;
-        //using Tuple3<CotVector3, T>::operator+;
-        //using Tuple3<CotVector3, T>::operator*;
-        //using Tuple3<CotVector3, T>::operator*=;
+        using GeoVector3<T>::operator+;
+        using GeoVector3<T>::operator+=;
+        using GeoVector3<T>::operator-;
+        using GeoVector3<T>::operator-=;
+        using GeoVector3<T>::operator*;
+        using GeoVector3<T>::operator*=;
+        using GeoVector3<T>::operator/;
+        using GeoVector3<T>::operator/=;
+        using GeoVector3<T>::operator==;
+        using GeoVector3<T>::operator!=;
+        using GeoVector3<T>::operator[];
 
         CotVector3() = default;
         CotVector3(T x, T y, T z) : GeoVector3<T>(x, y, z) {}
@@ -1278,7 +1289,7 @@ namespace lightfold {
         // Find closest vector by rotating _wp_ until it touches the cone
         float sinTheta = -SafeSqrt(1 - cosTheta * cosTheta);
         TanVector3f a = TanVector3f(Cross(wp, w));
-        return TanVector3f(TanVector3f(cosTheta * w) +
+        return TanVector3f(cosTheta * w +
             (sinTheta / Length(a)) *
             TanVector3f(w.x * (wp.y * w.y + wp.z * w.z) - wp.x * (w.y * w.y + w.z * w.z),
                 w.y * (wp.x * w.x + wp.z * w.z) - wp.y * (w.x * w.x + w.z * w.z),
