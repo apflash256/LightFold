@@ -1,6 +1,6 @@
 #include <iostream>
 #include <imageio.h>
-#include <math/vecmathalt.h>
+#include <math/vecmath.h>
 
 int main(void) {
 	std::cout << "Hello World!";

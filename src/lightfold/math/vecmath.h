@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include<type_traits>
 
 #include <math/math.h>
 
@@ -57,10 +58,10 @@ namespace lightfold {
         struct TupleLength<long double> {
             using type = long double;
         };
-    }  // anonymous namespace
+    } // anonymous namespace
 
     // Class Definitions
-    template <template <typename> class Rep, typename T>
+    template <typename T>
     class Tuple2 {
     public:
         static const int nDimensions = 2;
@@ -70,53 +71,42 @@ namespace lightfold {
         Tuple2(T x, T y) : x(x), y(y) {}
 
         template <typename U>
-        auto operator+(Rep<U> c) const -> Rep<decltype(T{} + U{})> {
+        auto operator+(Tuple2<U> c) const->Tuple2<decltype(T{} + U{}) > {
             return { x + c.x, y + c.y };
         }
         template <typename U>
-        Rep<T>& operator+=(Rep<U> c) {
+        Tuple2<T>& operator+=(Tuple2<U> c) {
             x += c.x;
             y += c.y;
-            return static_cast<Rep<T> &>(*this);
+            return static_cast<Tuple2<T> &>(*this);
         }
         template <typename U>
-        auto operator-(Rep<U> c) const -> Rep<decltype(T{} - U{})> {
+        auto operator-(Tuple2<U> c) const->Tuple2<decltype(T{} - U{}) > {
             return { x - c.x, y - c.y };
         }
         template <typename U>
-        Rep<T>& operator-=(Rep<U> c) {
+        Tuple2<T>& operator-=(Tuple2<U> c) {
             x -= c.x;
             y -= c.y;
-            return static_cast<Rep<T> &>(*this);
+            return static_cast<Tuple2<T> &>(*this);
         }
         template <typename U>
-        auto operator*(U s) const -> Rep<decltype(T{} * U{})> {
-            return { s * x, s * y };
-        }
-        template <typename U>
-        Rep<T>& operator*=(U s) {
+        Tuple2<T>& operator*=(U s) {
             x *= s;
             y *= s;
-            return static_cast<Rep<T> &>(*this);
+            return static_cast<Tuple2<T> &>(*this);
         }
         template <typename U>
-        auto operator/(U d) const -> Rep<decltype(T{} / U{})> {
-            return { x / d, y / d };
-        }
-        template <typename U>
-        Rep<T>& operator/=(U d) {
+        Tuple2<T>& operator/=(U d) {
             x /= d;
             y /= d;
-            return static_cast<Rep<T> &>(*this);
-        }
-        Rep<T> operator-() const {
-            return { -x, -y };
+            return static_cast<Tuple2<T> &>(*this);
         }
 
-        bool operator==(Rep<T> c) const {
+        bool operator==(Tuple2<T> c) const {
             return x == c.x && y == c.y;
         }
-        bool operator!=(Rep<T> c) const {
+        bool operator!=(Tuple2<T> c) const {
             return x != c.x || y != c.y;
         }
 
@@ -131,7 +121,7 @@ namespace lightfold {
         T x{}, y{};
     };
 
-    template <template <typename> class Rep, typename T>
+    template <typename T>
     class Tuple3 {
     public:
         static const int nDimensions = 3;
@@ -141,57 +131,46 @@ namespace lightfold {
         Tuple3(T x, T y, T z) : x(x), y(y), z(z) { }
 
         template <typename U>
-        auto operator+(Rep<U> c) const -> Rep<decltype(T{} + U{})> {
+        auto operator+(Tuple3<U> c) const->Tuple3<decltype(T{} + U{}) > {
             return { x + c.x, y + c.y, z + c.z };
         }
         template <typename U>
-        Rep<T>& operator+=(Rep<U> c) {
+        Tuple3<T>& operator+=(Tuple3<U> c) {
             x += c.x;
             y += c.y;
             z += c.z;
-            return static_cast<Rep<T> &>(*this);
+            return static_cast<Tuple3<T> &>(*this);
         }
         template <typename U>
-        auto operator-(Rep<U> c) const -> Rep<decltype(T{} - U{})> {
+        auto operator-(Tuple3<U> c) const->Tuple3<decltype(T{} - U{}) > {
             return { x - c.x, y - c.y, z - c.z };
         }
         template <typename U>
-        Rep<T>& operator-=(Rep<U> c) {
+        Tuple3<T>& operator-=(Tuple3<U> c) {
             x -= c.x;
             y -= c.y;
             z -= c.z;
-            return static_cast<Rep<T> &>(*this);
+            return static_cast<Tuple3<T> &>(*this);
         }
         template <typename U>
-        auto operator*(U s) const -> Rep<decltype(T{} * U{})> {
-            return { s * x, s * y, s * z };
-        }
-        template <typename U>
-        Rep<T>& operator*=(U s) {
+        Tuple3<T>& operator*=(U s) {
             x *= s;
             y *= s;
             z *= s;
-            return static_cast<Rep<T> &>(*this);
+            return static_cast<Tuple3<T> &>(*this);
         }
         template <typename U>
-        auto operator/(U d) const -> Rep<decltype(T{} / U{}) > {
-            return { x / d, y / d, z / d };
-        }
-        template <typename U>
-        Rep<T>& operator/=(U d) {
+        Tuple3<T>& operator/=(U d) {
             x /= d;
             y /= d;
             z /= d;
-            return static_cast<Rep<T> &>(*this);
-        }
-        Rep<T> operator-() const {
-            return { -x, -y, -z };
+            return static_cast<Tuple3<T> &>(*this);
         }
 
-        bool operator==(Rep<T> c) const {
+        bool operator==(Tuple3<T> c) const {
             return x == c.x && y == c.y && z == c.z;
         }
-        bool operator!=(Rep<T> c) const {
+        bool operator!=(Tuple3<T> c) const {
             return x != c.x || y != c.y || z != c.z;
         }
 
@@ -215,26 +194,20 @@ namespace lightfold {
     };
 
     template <typename T>
-    class Point2 : public Tuple2<Point2, T> {
+    class Point2 : public Tuple2<T> {
     public:
         // Point2 Public Methods
-        //using Tuple2<Point2, T>::x;
-        //using Tuple2<Point2, T>::y;
-        using Tuple2<Point2, T>::operator+;
-        using Tuple2<Point2, T>::operator+=;
-        using Tuple2<Point2, T>::operator*;
-        using Tuple2<Point2, T>::operator*=;
-
         Point2() { x = y = 0; }
-        Point2(T x, T y) : Tuple2<lightfold::Point2, T>(x, y) {}
+        Point2(T x, T y) : Tuple2<T>(x, y) {}
 
         template <typename U>
-        explicit Point2(Point2<U> v) : Tuple2<lightfold::Point2, T>(T(v.x), T(v.y)) {}
+        explicit Point2(Point2<U> v) : Tuple2<T>(T(v.x), T(v.y)) {}
         template <typename U>
-        explicit Point2(GeoVector2<U> v) : Tuple2<lightfold::Point2, T>(T(v.x), T(v.y)) {}
+        explicit Point2(GeoVector2<U> v) : Tuple2<T>(T(v.x), T(v.y)) {}
 
+        // We cannot add two points, but we can add a point and a vector.
         template <typename U>
-        auto operator+(GeoVector2<U> v) const -> Point2<decltype(T{} + U{})> {
+        auto operator+(GeoVector2<U> v) const->Point2<decltype(T{} + U{}) > {
             return { x + v.x, y + v.y };
         }
         template <typename U>
@@ -243,18 +216,12 @@ namespace lightfold {
             y += v.y;
             return *this;
         }
-        // We can't do using operator- above, since we don't want to pull in
-        // the Point-Point -> Point one so that we can return a vector
-        // instead...
-        Point2<T> operator-() const {
-            return { -x, -y };
-        }
         template <typename U>
-        auto operator-(Point2<U> p) const -> GeoVector2<decltype(T{} - U{})> {
+        auto operator-(Point2<U> p) const->GeoVector2<decltype(T{} - U{}) > {
             return { x - p.x, y - p.y };
         }
         template <typename U>
-        auto operator-(GeoVector2<U> v) const -> Point2<decltype(T{} - U{})> {
+        auto operator-(GeoVector2<U> v) const->Point2<decltype(T{} - U{}) > {
             return { x - v.x, y - v.y };
         }
         template <typename U>
@@ -266,27 +233,19 @@ namespace lightfold {
     };
 
     template <typename T>
-    class Point3 : public Tuple3<Point3, T> {
+    class Point3 : public Tuple3<T> {
     public:
         // Point3 Public Methods
-        //using Tuple3<Point3, T>::x;
-        //using Tuple3<Point3, T>::y;
-        //using Tuple3<Point3, T>::z;
-        using Tuple3<Point3, T>::operator+;
-        using Tuple3<Point3, T>::operator+=;
-        using Tuple3<Point3, T>::operator*;
-        using Tuple3<Point3, T>::operator*=;
-
         Point3() = default;
-        Point3(T x, T y, T z) : Tuple3<lightfold::Point3, T>(x, y, z) {}
+        Point3(T x, T y, T z) : Tuple3<T>(x, y, z) {}
 
         template <typename U>
-        explicit Point3(Point3<U> p) : Tuple3<lightfold::Point3, T>(T(p.x), T(p.y), T(p.z)) {}
-        template <typename U>
-        explicit Point3(GeoVector3<U> v) : Tuple3<lightfold::Point3, T>(T(v.x), T(v.y), T(v.z)) {}
+        explicit Point3(Tuple3<U> p) : Tuple3<T>(T(p.x), T(p.y), T(p.z)) {}
 
+        // We cannot add two points, but we can add a point and a vector.
+        // Here we specify the vectors to be tangent vectors.
         template <typename U>
-        auto operator+(TanVector3<U> v) const -> Point3<decltype(T{} + U{})> {
+        auto operator+(TanVector3<U> v) const->Point3<decltype(T{} + U{}) > {
             return { x + v.x, y + v.y, z + v.z };
         }
         template <typename U>
@@ -296,18 +255,12 @@ namespace lightfold {
             z += v.z;
             return *this;
         }
-        // We can't do using operator- above, since we don't want to pull in
-        // the Point-Point -> Point one so that we can return a vector
-        // instead...
-        Point3<T> operator-() const {
-            return { -x, -y, -z };
-        }
         template <typename U>
-        auto operator-(Point3<U> p) const -> TanVector3<decltype(T{} - U{})> {
+        auto operator-(Point3<U> p) const->TanVector3<decltype(T{} - U{}) > {
             return { x - p.x, y - p.y, z - p.z };
         }
         template <typename U>
-        auto operator-(TanVector3<U> v) const -> Point3<decltype(T{} - U{})> {
+        auto operator-(TanVector3<U> v) const->Point3<decltype(T{} - U{}) > {
             return { x - v.x, y - v.y, z - v.z };
         }
         template <typename U>
@@ -317,137 +270,44 @@ namespace lightfold {
             z -= v.z;
             return *this;
         }
+        // If we force to add two points, it produces the Tuple.
+        using Tuple3<T>::operator+;
     };
 
-    /*class Point3fi : public Point3<Interval> {
-    public:
-        using Point3<Interval>::x;
-        using Point3<Interval>::y;
-        using Point3<Interval>::z;
-        using Point3<Interval>::operator+;
-        using Point3<Interval>::operator*;
-        using Point3<Interval>::operator*=;
-
-        Point3fi() = default;
-        Point3fi(Interval x, Interval y, Interval z) : Point3<Interval>(x, y, z) {}
-        Point3fi(float x, float y, float z) : Point3<Interval>(Interval(x), Interval(y), Interval(z)) {}
-        Point3fi(const Point3f& p) : Point3<Interval>(Interval(p.x), Interval(p.y), Interval(p.z)) {}
-        Point3fi(Point3<Interval> p) : Point3<Interval>(p) {}
-        Point3fi(Point3f p, Vector3f e)
-            : Point3<Interval>(Interval::FromValueAndError(p.x, e.x),
-                Interval::FromValueAndError(p.y, e.y),
-                Interval::FromValueAndError(p.z, e.z)) {}
-        
-        Vector3f Error() const { return { x.Width() / 2, y.Width() / 2, z.Width() / 2 }; }
-        bool IsExact() const { return x.Width() == 0 && y.Width() == 0 && z.Width() == 0; }
-
-        // Meh--can't seem to get these from Point3 via using declarations...
-        template <typename U>
-        Point3fi operator+(Vector3<U> v) const {
-            return { x + v.x, y + v.y, z + v.z };
-        }
-        template <typename U>
-        Point3fi& operator+=(Vector3<U> v) {
-            x += v.x;
-            y += v.y;
-            z += v.z;
-            return *this;
-        }
-        Point3fi operator-() const {
-            return { -x, -y, -z };
-        }
-        template <typename U>
-        Point3fi operator-(Point3<U> p) const { return { x - p.x, y - p.y, z - p.z }; }
-        template <typename U>
-        Point3fi operator-(Vector3<U> v) const { return { x - v.x, y - v.y, z - v.z }; }
-        template <typename U>
-        Point3fi& operator-=(Vector3<U> v) {
-            x -= v.x;
-            y -= v.y;
-            z -= v.z;
-            return *this;
-        }
-    };*/
-
     template <typename T>
-    class GeoVector2 : public Tuple2<GeoVector2, T> {
+    class GeoVector2 : public Tuple2<T> {
     public:
         // GeoVector2 Public Methods
-        //using Tuple2<GeoVector2, T>::x;
-        //using Tuple2<GeoVector2, T>::y;
-
         GeoVector2() = default;
-        GeoVector2(T x, T y) : Tuple2<lightfold::GeoVector2, T>(x, y) {}
+        GeoVector2(T x, T y) : Tuple2<T>(x, y) {}
 
         template <typename U>
-        explicit GeoVector2(GeoVector2<U> v) : Tuple2<lightfold::GeoVector2, T>(T(v.x), T(v.y)) {}
+        explicit GeoVector2(GeoVector2<U> v) : Tuple2<T>(T(v.x), T(v.y)) {}
         template <typename U>
-        explicit GeoVector2(Point2<U> p) : Tuple2<lightfold::GeoVector2, T>(T(p.x), T(p.y)) {}
+        explicit GeoVector2(Point2<U> p) : Tuple2<T>(T(p.x), T(p.y)) {}
     };
 
     template <typename T>
-    class GeoVector3 : public Tuple3<GeoVector3, T> {
+    class GeoVector3 : public Tuple3<T> {
     public:
-        // Vector3 Public Methods
-        //using Tuple3<GeoVector3, T>::x;
-        //using Tuple3<GeoVector3, T>::y;
-        //using Tuple3<GeoVector3, T>::z;
-
+        // GeoVector3 Public Methods
         GeoVector3() = default;
-        GeoVector3(T x, T y, T z) : Tuple3<lightfold::GeoVector3, T>(x, y, z) {}
+        GeoVector3(T x, T y, T z) : Tuple3<T>(x, y, z) {}
 
         template <typename U>
-        explicit GeoVector3(GeoVector3<U> v) : Tuple3<lightfold::GeoVector3, T>(T(v.x), T(v.y), T(v.z)) {}
+        explicit GeoVector3(GeoVector3<U> v) : Tuple3<T>(T(v.x), T(v.y), T(v.z)) {}
         template <typename U>
-        explicit GeoVector3(Point3<U> p) : Tuple3<lightfold::GeoVector3, T>(T(p.x), T(p.y), T(p.z)) {}
+        explicit GeoVector3(Point3<U> p) : Tuple3<T>(T(p.x), T(p.y), T(p.z)) {}
         template <typename U>
-        explicit GeoVector3(TanVector3<U> n) : Tuple3<lightfold::GeoVector3, T>(T(n.x), T(n.y), T(n.z)) {}
+        explicit GeoVector3(TanVector3<U> n) : Tuple3<T>(T(n.x), T(n.y), T(n.z)) {}
         template <typename U>
-        explicit GeoVector3(CotVector3<U> n) : Tuple3<lightfold::GeoVector3, T>(T(n.x), T(n.y), T(n.z)) {}
+        explicit GeoVector3(CotVector3<U> n) : Tuple3<T>(T(n.x), T(n.y), T(n.z)) {}
     };
-
-    /*class Vector3fi : public Vector3<Interval> {
-    public:
-        // Vector3fi Public Methods
-        using Vector3<Interval>::x;
-        using Vector3<Interval>::y;
-        using Vector3<Interval>::z;
-        using Vector3<Interval>::operator+;
-        using Vector3<Interval>::operator+=;
-        using Vector3<Interval>::operator*;
-        using Vector3<Interval>::operator*=;
-
-        Vector3fi() = default;
-        Vector3fi(float x, float y, float z)  : Vector3<Interval>(Interval(x), Interval(y), Interval(z)) {}
-        Vector3fi(Interval x, Interval y, Interval z) : Vector3<Interval>(x, y, z) {}
-        Vector3fi(Vector3f p) : Vector3<Interval>(Interval(p.x), Interval(p.y), Interval(p.z)) {}
-        template <typename T>
-        explicit Vector3fi(Point3<T> p) : Vector3<Interval>(Interval(p.x), Interval(p.y), Interval(p.z)) {}
-        Vector3fi(Vector3<Interval> pfi) : Vector3<Interval>(pfi) {}
-        Vector3fi(Vector3f v, Vector3f e)
-            : Vector3<Interval>(Interval::FromValueAndError(v.x, e.x),
-                Interval::FromValueAndError(v.y, e.y),
-                Interval::FromValueAndError(v.z, e.z)) {}
-        Vector3f Error() const { return { x.Width() / 2, y.Width() / 2, z.Width() / 2 }; }
-        bool IsExact() const { return x.Width() == 0 && y.Width() == 0 && z.Width() == 0; }
-    };*/
 
     template <typename T>
     class TanVector3 : public GeoVector3<T> {
     public:
         // TanVector3 Public Methods
-        using GeoVector3<T>::operator+;
-        using GeoVector3<T>::operator+=;
-        using GeoVector3<T>::operator-;
-        using GeoVector3<T>::operator-=;
-        using GeoVector3<T>::operator*;
-        using GeoVector3<T>::operator*=;
-        using GeoVector3<T>::operator/;
-        using GeoVector3<T>::operator/=;
-        using GeoVector3<T>::operator==;
-        using GeoVector3<T>::operator!=;
-        using GeoVector3<T>::operator[];
-
         TanVector3() = default;
         TanVector3(T x, T y, T z) : GeoVector3<T>(x, y, z) {}
 
@@ -459,69 +319,11 @@ namespace lightfold {
     class CotVector3 : public GeoVector3<T> {
     public:
         // CotVector3 Public Methods
-        using GeoVector3<T>::operator+;
-        using GeoVector3<T>::operator+=;
-        using GeoVector3<T>::operator-;
-        using GeoVector3<T>::operator-=;
-        using GeoVector3<T>::operator*;
-        using GeoVector3<T>::operator*=;
-        using GeoVector3<T>::operator/;
-        using GeoVector3<T>::operator/=;
-        using GeoVector3<T>::operator==;
-        using GeoVector3<T>::operator!=;
-        using GeoVector3<T>::operator[];
-
         CotVector3() = default;
         CotVector3(T x, T y, T z) : GeoVector3<T>(x, y, z) {}
 
         template <typename U>
         explicit CotVector3<T>(GeoVector3<U> v) : GeoVector3<T>(T(v.x), T(v.y), T(v.z)) {}
-    };
-
-    class Quaternion {
-    public:
-        // Quaternion Public Methods
-        Quaternion() = default;
-
-        Quaternion& operator+=(Quaternion q) {
-            v += q.v;
-            w += q.w;
-            return *this;
-        }
-        Quaternion operator+(Quaternion q) const {
-            return { v + q.v, w + q.w };
-        }
-        Quaternion& operator-=(Quaternion q) {
-            v -= q.v;
-            w -= q.w;
-            return *this;
-        }
-        Quaternion operator-() const {
-            return { -v, -w };
-        }
-        Quaternion operator-(Quaternion q) const {
-            return { v - q.v, w - q.w };
-        }
-        Quaternion& operator*=(float f) {
-            v *= f;
-            w *= f;
-            return *this;
-        }
-        Quaternion operator*(float f) const {
-            return { v * f, w * f };
-        }
-        Quaternion& operator/=(float f) {
-            v /= f;
-            w /= f;
-            return *this;
-        }
-        Quaternion operator/(float f) const {
-            return { v / f, w / f };
-        }
-
-        // Quaternion Public Members
-        GeoVector3f v;
-        float w = 1;
     };
 
     template <typename T>
@@ -546,14 +348,6 @@ namespace lightfold {
                 pMin = Point2<T>(b.pMin);
                 pMax = Point2<T>(b.pMax);
             }
-        }
-
-        GeoVector2<T> Diagonal() const {
-            return pMax - pMin;
-        }
-        T Area() const {
-            GeoVector2<T> d = pMax - pMin;
-            return d.x * d.y;
         }
 
         bool IsEmpty() const {
@@ -585,6 +379,13 @@ namespace lightfold {
             return b.pMin != pMin || b.pMax != pMax;
         }
 
+        GeoVector2<T> Diagonal() const {
+            return pMax - pMin;
+        }
+        T Area() const {
+            GeoVector2<T> d = pMax - pMin;
+            return d.x * d.y;
+        }
         Point2<T> Corner(int corner) const {
             return Point2<T>((*this)[(corner & 1)].x, (*this)[(corner & 2) ? 1 : 0].y);
         }
@@ -621,6 +422,33 @@ namespace lightfold {
         }
         explicit Bounds3(Point3<T> p) : pMin(p), pMax(p) {}
         Bounds3(Point3<T> p1, Point3<T> p2) : pMin(Min(p1, p2)), pMax(Max(p1, p2)) {}
+        template <typename U>
+        explicit Bounds3(const Bounds3<U>& b) {
+            if (b.IsEmpty())
+                // Be careful about overflowing float->int conversions and the
+                // like.
+                *this = Bounds3<T>();
+            else {
+                pMin = Point3<T>(b.pMin);
+                pMax = Point3<T>(b.pMax);
+            }
+        }
+
+        bool IsEmpty() const {
+            return pMin.x >= pMax.x || pMin.y >= pMax.y || pMin.z >= pMax.z;
+        }
+        bool IsDegenerate() const {
+            return pMin.x > pMax.x || pMin.y > pMax.y || pMin.z > pMax.z;
+        }
+        int MaxDimension() const {
+            Vector3<T> d = Diagonal();
+            if (d.x > d.y && d.x > d.z)
+                return 0;
+            else if (d.y > d.z)
+                return 1;
+            else
+                return 2;
+        }
 
         Point3<T> operator[](int i) const {
             return (i == 0) ? pMin : pMax;
@@ -629,10 +457,13 @@ namespace lightfold {
             return (i == 0) ? pMin : pMax;
         }
 
-        Point3<T> Corner(int corner) const {
-            return Point3<T>((*this)[(corner & 1)].x, (*this)[(corner & 2) ? 1 : 0].y,
-                (*this)[(corner & 4) ? 1 : 0].z);
+        bool operator==(const Bounds3<T>& b) const {
+            return b.pMin == pMin && b.pMax == pMax;
         }
+        bool operator!=(const Bounds3<T>& b) const {
+            return b.pMin != pMin || b.pMax != pMax;
+        }
+
         TanVector3<T> Diagonal() const {
             return pMax - pMin;
         }
@@ -644,14 +475,9 @@ namespace lightfold {
             Vector3<T> d = Diagonal();
             return d.x * d.y * d.z;
         }
-        int MaxDimension() const {
-            Vector3<T> d = Diagonal();
-            if (d.x > d.y && d.x > d.z)
-                return 0;
-            else if (d.y > d.z)
-                return 1;
-            else
-                return 2;
+        Point3<T> Corner(int corner) const {
+            return Point3<T>((*this)[(corner & 1)].x, (*this)[(corner & 2) ? 1 : 0].y,
+                (*this)[(corner & 4) ? 1 : 0].z);
         }
 
         Point3f Lerp(Point3f t) const {
@@ -669,32 +495,8 @@ namespace lightfold {
             return o;
         }
         void BoundingSphere(Point3<T>* center, float* radius) const {
-            *center = (pMin + pMax) / 2;
+            *center = (Point3<T>)((pMin + pMax) / 2);
             *radius = Inside(*center, *this) ? Distance(*center, pMax) : 0;
-        }
-        bool IsEmpty() const {
-            return pMin.x >= pMax.x || pMin.y >= pMax.y || pMin.z >= pMax.z;
-        }
-        bool IsDegenerate() const {
-            return pMin.x > pMax.x || pMin.y > pMax.y || pMin.z > pMax.z;
-        }
-
-        template <typename U>
-        explicit Bounds3(const Bounds3<U>& b) {
-            if (b.IsEmpty())
-                // Be careful about overflowing float->int conversions and the
-                // like.
-                *this = Bounds3<T>();
-            else {
-                pMin = Point3<T>(b.pMin);
-                pMax = Point3<T>(b.pMax);
-            }
-        }
-        bool operator==(const Bounds3<T>& b) const {
-            return b.pMin == pMin && b.pMax == pMax;
-        }
-        bool operator!=(const Bounds3<T>& b) const {
-            return b.pMin != pMin || b.pMax != pMax;
         }
 
         bool IntersectP(Point3f o, TanVector3f d, float tMax = Infinity, float* hitt0 = nullptr,
@@ -742,69 +544,133 @@ namespace lightfold {
         const Bounds2i* bounds;
     };
 
-    // Tuple3 Inline Functions
-    template <template <class> class C, typename T, typename U>
-    inline auto operator*(U s, Tuple3<C, T> t)->C<decltype(T{} *U{}) > {
-        return t * s;
+    // Tuple2 Inline Functions
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline auto operator*(C<T> left, U right)->C<decltype(T{} *U{}) > {
+        return { left.x * right, left.y * right };
     }
-    template <template <class> class C, typename T>
-    inline C<T> Abs(Tuple3<C, T> t) {
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline auto operator*(U left, C<T> right)->C<decltype(T{} *U{}) > {
+        return right * left;
+    }
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline auto operator/(C<T> left, U right)->C<decltype(T{} / U{}) > {
+        return { left.x / right, left.y / right };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline C<T> operator-(C<T> t) {
+        return { -t.x, -t.y };
+    }
+
+    // Tuple3 Inline Functions
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline auto operator*(C<T> left, U right)->C<decltype(T{} *U{}) > {
+        return { left.x * right, left.y * right, left.z * right };
+    }
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline auto operator*(U left, C<T> right)->C<decltype(T{} *U{}) > {
+        return right * left;
+    }
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline auto operator/(C<T> left, U right)->C<decltype(T{} / U{}) > {
+        return { left.x / right, left.y / right, left.z / right };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline C<T> operator-(C<T> t) {
+        return { -t.x, -t.y, -t.z };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline C<T> Abs(C<T> t) {
         return { std::abs(t.x), std::abs(t.y), std::abs(t.z) };
     }
-    template <template <class> class C, typename T>
-    inline C<T> Ceil(Tuple3<C, T> t) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline C<T> Ceil(C<T> t) {
         return { std::ceil(t.x), std::ceil(t.y), std::ceil(t.z) };
     }
-    template <template <class> class C, typename T>
-    inline C<T> Floor(Tuple3<C, T> t) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline C<T> Floor(C<T> t) {
         return { std::floor(t.x), std::floor(t.y), std::floor(t.z) };
     }
-    template <template <class> class C, typename T>
-    inline auto Lerp(float t, Tuple3<C, T> t0, Tuple3<C, T> t1) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline auto Lerp(float t, C<T> t0, C<T> t1) {
         return (1 - t) * t0 + t * t1;
     }
-    template <template <class> class C, typename T>
-    inline C<T> FMA(float a, Tuple3<C, T> b, Tuple3<C, T> c) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline C<T> FMA(float a, C<T> b, C<T> c) {
         return { std::fma(a, b.x, c.x), std::fma(a, b.y, c.y), std::fma(a, b.z, c.z) };
     }
-    template <template <class> class C, typename T>
-    inline C<T> FMA(Tuple3<C, T> a, float b, Tuple3<C, T> c) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline C<T> FMA(C<T> a, float b, C<T> c) {
         return FMA(b, a, c);
     }
-    template <template <class> class C, typename T>
-    inline C<T> Min(Tuple3<C, T> t1, Tuple3<C, T> t2) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline C<T> Min(C<T> t1, C<T> t2) {
         return { std::min(t1.x, t2.x), std::min(t1.y, t2.y), std::min(t1.z, t2.z) };
     }
-    template <template <class> class C, typename T>
-    inline T MinComponentValue(Tuple3<C, T> t) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline T MinComponentValue(C<T> t) {
         return std::min({ t.x, t.y, t.z });
     }
-    template <template <class> class C, typename T>
-    inline int MinComponentIndex(Tuple3<C, T> t) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline int MinComponentIndex(C<T> t) {
         return (t.x < t.y) ? ((t.x < t.z) ? 0 : 2) : ((t.y < t.z) ? 1 : 2);
     }
-    template <template <class> class C, typename T>
-    inline C<T> Max(Tuple3<C, T> t1, Tuple3<C, T> t2) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline C<T> Max(C<T> t1, C<T> t2) {
         return { std::max(t1.x, t2.x), std::max(t1.y, t2.y), std::max(t1.z, t2.z) };
     }
-    template <template <class> class C, typename T>
-    inline T MaxComponentValue(Tuple3<C, T> t) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline T MaxComponentValue(C<T> t) {
         return std::max({ t.x, t.y, t.z });
     }
-    template <template <class> class C, typename T>
-    inline int MaxComponentIndex(Tuple3<C, T> t) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline int MaxComponentIndex(C<T> t) {
         return (t.x > t.y) ? ((t.x > t.z) ? 0 : 2) : ((t.y > t.z) ? 1 : 2);
     }
-    template <template <class> class C, typename T>
-    inline C<T> Permute(Tuple3<C, T> t, std::array<int, 3> p) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline C<T> Permute(C<T> t, std::array<int, 3> p) {
         return { t[p[0]], t[p[1]], t[p[2]] };
     }
-    template <template <class> class C, typename T>
-    inline T HProd(Tuple3<C, T> t) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple3<T>, C<T>>::value>* = nullptr>
+    inline T HProd(C<T> t) {
         return t.x * t.y * t.z;
     }
 
     // GeoVector2 Inline Functions
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<GeoVector2<T>, C<T>>::value>* = nullptr>
+    inline auto operator+(C<T> left, C<U> right)->C<decltype(T{} + U{}) >
+    {
+        return { left.x + right.x,left.y + right.y };
+    }
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<GeoVector2<T>, C<T>>::value>* = nullptr>
+    inline auto operator-(C<T> left, C<U> right)->C<decltype(T{} - U{}) >
+    {
+        return { left.x - right.x,left.y - right.y };
+    }
     template <typename T>
     inline auto Dot(GeoVector2<T> v1, GeoVector2<T> v2) -> typename TupleLength<T>::type {
         return SumOfProducts(v1.x, v2.x, v1.y, v2.y);
@@ -827,6 +693,18 @@ namespace lightfold {
     }
 
     // GeoVector3 Inline Functions
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<GeoVector3<T>, C<T>>::value>* = nullptr>
+    inline auto operator+(C<T> left, C<U> right)->C<decltype(T{} + U{}) >
+    {
+        return { left.x + right.x,left.y + right.y,left.z + right.z };
+    }
+    template <typename T, typename U, template <typename> class C,
+        std::enable_if_t<std::is_base_of<GeoVector3<T>, C<T>>::value>* = nullptr>
+    inline auto operator-(C<T> left, C<U> right)->C<decltype(T{} - U{}) >
+    {
+        return { left.x - right.x,left.y - right.y,left.z - right.z };
+    }
     template <typename T>
     inline auto Dot(GeoVector3<T> v1, GeoVector3<T> v2) -> typename TupleLength<T>::type {
         return std::fma(v1.x, v2.x, SumOfProducts(v1.y, v2.y, v1.z, v2.z));
@@ -843,18 +721,20 @@ namespace lightfold {
     inline auto Length(GeoVector3<T> v) -> typename TupleLength<T>::type {
         return std::sqrt(LengthSquared(v));
     }
-    template <typename T>
-    inline auto Normalize(GeoVector3<T> v) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<GeoVector3<T>, C<T>>::value>* = nullptr>
+    inline auto Normalize(C<T> v) {
         return v / Length(v);
     }
     template <typename T>
-    inline GeoVector3<T> Cross(GeoVector3<T> v1, GeoVector3<T> v2) {
+    inline TanVector3<T> Cross(GeoVector3<T> v1, GeoVector3<T> v2) {
         return { DifferenceOfProducts(v1.y, v2.z, v1.z, v2.y),
                 DifferenceOfProducts(v1.z, v2.x, v1.x, v2.z),
                 DifferenceOfProducts(v1.x, v2.y, v1.y, v2.x) };
     }
-    template <typename T>
-    inline GeoVector3<T> FaceForward(GeoVector3<T> v1, GeoVector3<T> v2) {
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<GeoVector3<T>, C<T>>::value>* = nullptr>
+        inline C<T> FaceForward(C<T> v1, C<T> v2) {
         return (Dot(v1, v2) < 0.f) ? -v1 : v1;
     }
     // Equivalent to std::acos(Dot(a, b)), but more numerically stable.
@@ -872,7 +752,7 @@ namespace lightfold {
         return v - Dot(v, w) * w;
     }
     template <typename T>
-    inline void CoordinateSystem(GeoVector3<T> v1, TanVector3<T>* v2, TanVector3<T>* v3) {
+    inline void CoordinateSystem(TanVector3<T> v1, TanVector3<T>* v2, TanVector3<T>* v3) {
         float sign = std::copysign(float(1), v1.z);
         float a = -1 / (sign + v1.z);
         float b = v1.x * v1.y * a;
@@ -896,33 +776,6 @@ namespace lightfold {
     template <typename T>
     inline auto DistanceSquared(Point3<T> p1, Point3<T> p2) {
         return LengthSquared(p1 - p2);
-    }
-
-    // Quaternion Inline Functions
-    inline Quaternion operator*(float f, Quaternion q) {
-        return q * f;
-    }
-    inline float Dot(Quaternion q1, Quaternion q2) {
-        return Dot(q1.v, q2.v) + q1.w * q2.w;
-    }
-    inline float Length(Quaternion q) {
-        return std::sqrt(Dot(q, q));
-    }
-    inline Quaternion Normalize(Quaternion q) {
-        return q / Length(q);
-    }
-    inline float AngleBetween(Quaternion q1, Quaternion q2) {
-        if (Dot(q1, q2) < 0)
-            return Pi - 2 * SafeASin(Length(q1 + q2) / 2);
-        else
-            return 2 * SafeASin(Length(q2 - q1) / 2);
-    }
-    // http://www.plunk.org/~hatch/rightway.html
-    inline Quaternion Slerp(float t, Quaternion q1, Quaternion q2) {
-        float theta = AngleBetween(q1, q2);
-        float sinThetaOverTheta = SinXOverX(theta);
-        return q1 * (1 - t) * SinXOverX((1 - t) * theta) / sinThetaOverTheta +
-            q2 * t * SinXOverX(t * theta) / sinThetaOverTheta;
     }
 
     // Bounds2 Inline Functions
@@ -1115,21 +968,75 @@ namespace lightfold {
         return Bounds2iIterator(b, pEnd);
     }
 
+    class Frame {
+    public:
+        // Frame Public Methods
+        Frame() : x(1, 0, 0), y(0, 1, 0), z(0, 0, 1) {}
+        Frame(TanVector3f x, TanVector3f y, TanVector3f z) : x(x), y(y), z(z) {}
+
+        static Frame FromXZ(TanVector3f x, TanVector3f z) {
+            return Frame(x, Cross(z, x), z);
+        }
+        static Frame FromXY(TanVector3f x, TanVector3f y) {
+            return Frame(x, y, Cross(x, y));
+        }
+        static Frame FromX(TanVector3f x) {
+            TanVector3f y, z;
+            CoordinateSystem(x, &y, &z);
+            return Frame(x, y, z);
+        }
+        static Frame FromY(TanVector3f y) {
+            TanVector3f x, z;
+            CoordinateSystem(y, &z, &x);
+            return Frame(x, y, z);
+        }
+        static Frame FromZ(TanVector3f z) {
+            TanVector3f x, y;
+            CoordinateSystem(z, &x, &y);
+            return Frame(x, y, z);
+        }
+        static Frame FromX(CotVector3f x) {
+            return FromX((TanVector3f)x);
+        }
+        static Frame FromY(CotVector3f y) {
+            return FromY((TanVector3f)y);
+        }
+        static Frame FromZ(CotVector3f z) {
+            return FromZ((TanVector3f)z);
+        }
+
+        TanVector3f ToLocal(TanVector3f v) const {
+            return TanVector3f(Dot(v, x), Dot(v, y), Dot(v, z));
+        }
+        CotVector3f ToLocal(CotVector3f n) const {
+            return CotVector3f(Dot(n, x), Dot(n, y), Dot(n, z));
+        }
+        TanVector3f FromLocal(TanVector3f v) const {
+            return v.x * x + v.y * y + v.z * z;
+        }
+        CotVector3f FromLocal(CotVector3f n) const {
+            return (CotVector3f)(n.x * x + n.y * y + n.z * z);
+        }
+
+        // Frame Public Members
+        TanVector3f x, y, z;
+    };
+
     // Spherical Geometry Inline Functions
     inline float SphericalTriangleArea(TanVector3f a, TanVector3f b, TanVector3f c) {
         return std::abs(
             2 * std::atan2(Dot(a, Cross(b, c)), 1 + Dot(a, b) + Dot(a, c) + Dot(b, c)));
     }
     inline float SphericalQuadArea(TanVector3f a, TanVector3f b, TanVector3f c, TanVector3f d) {
-        TanVector3f axb = TanVector3f(Cross(a, b)), bxc = TanVector3f(Cross(b, c)),
-            cxd = TanVector3f(Cross(c, d)), dxa = TanVector3f(Cross(d, a));
+        TanVector3f axb = Cross(a, b), bxc = Cross(b, c),
+            cxd = Cross(c, d), dxa = Cross(d, a);
         if (LengthSquared(axb) == 0 || LengthSquared(bxc) == 0 || LengthSquared(cxd) == 0 ||
             LengthSquared(dxa) == 0)
             return 0;
-        axb = TanVector3f(Normalize(axb));
-        bxc = TanVector3f(Normalize(bxc));
-        cxd = TanVector3f(Normalize(cxd));
-        dxa = TanVector3f(Normalize(dxa));
+        axb = Normalize(axb);
+        bxc = Normalize(bxc);
+        cxd = Normalize(cxd);
+        dxa = Normalize(dxa);
 
         float alpha = AngleBetween(dxa, -axb);
         float beta = AngleBetween(axb, -bxc);
@@ -1228,11 +1135,9 @@ namespace lightfold {
         static float Sign(float v) {
             return std::copysign(1.f, v);
         }
-
         static uint16_t Encode(float f) {
             return (uint16_t)std::round(Clamp((f + 1) / 2, 0, 1) * 65535.f);
         }
-
         // OctahedralVector Private Members
         uint16_t x, y;
     };
@@ -1250,7 +1155,6 @@ namespace lightfold {
         static DirectionCone EntireSphere() {
             return DirectionCone(TanVector3f(0, 0, 1), -1);
         }
-
         TanVector3f ClosestVectorInCone(TanVector3f wp) const;
 
         // DirectionCone Public Members
@@ -1273,119 +1177,25 @@ namespace lightfold {
         b.BoundingSphere(&pCenter, &radius);
         if (DistanceSquared(p, pCenter) < radius * radius)
             return DirectionCone::EntireSphere();
-
         // Compute and return _DirectionCone_ for bounding sphere
-        TanVector3f w = TanVector3f(Normalize(pCenter - p));
+        TanVector3f w = Normalize(pCenter - p);
         float sin2ThetaMax = radius * radius / DistanceSquared(pCenter, p);
         float cosThetaMax = SafeSqrt(1 - sin2ThetaMax);
         return DirectionCone(w, cosThetaMax);
     }
     inline TanVector3f DirectionCone::ClosestVectorInCone(TanVector3f wp) const {
-        wp = TanVector3f(Normalize(wp));
+        wp = Normalize(wp);
         // Return provided vector if it is inside the cone
         if (Dot(wp, w) > cosTheta)
             return wp;
-
         // Find closest vector by rotating _wp_ until it touches the cone
         float sinTheta = -SafeSqrt(1 - cosTheta * cosTheta);
-        TanVector3f a = TanVector3f(Cross(wp, w));
-        return TanVector3f(cosTheta * w +
-            (sinTheta / Length(a)) *
+        TanVector3f a = Cross(wp, w);
+        return cosTheta * w +
+            sinTheta / Length(a) *
             TanVector3f(w.x * (wp.y * w.y + wp.z * w.z) - wp.x * (w.y * w.y + w.z * w.z),
                 w.y * (wp.x * w.x + wp.z * w.z) - wp.y * (w.x * w.x + w.z * w.z),
-                w.z * (wp.x * w.x + wp.y * w.y) - wp.z * (w.x * w.x + w.y * w.y)));
+                w.z * (wp.x * w.x + wp.y * w.y) - wp.z * (w.x * w.x + w.y * w.y));
     }
-    /*
-    // https://www.iquilezles.org/www/articles/ibilinear/ibilinear.htm,
-    // with a fix for perfect quads
-    inline Point2f InvertBilinear(Point2f p, pstd::span<const Point2f> vert) {
-        // The below assumes a quad (vs uv parametric layout) in v....
-        Point2f a = vert[0], b = vert[1], c = vert[3], d = vert[2];
-        GeoVector2f e = b - a, f = d - a, g = (a - b) + (c - d), h = p - a;
 
-        auto cross2d = [](GeoVector2f a, GeoVector2f b) {
-            return DifferenceOfProducts(a.x, b.y, a.y, b.x);
-        };
-
-        float k2 = cross2d(g, f);
-        float k1 = cross2d(e, f) + cross2d(h, g);
-        float k0 = cross2d(h, e);
-
-        // if edges are parallel, this is a linear equation
-        if (std::abs(k2) < 0.001f) {
-            if (std::abs(e.x * k1 - g.x * k0) < 1e-5f)
-                return Point2f((h.y * k1 + f.y * k0) / (e.y * k1 - g.y * k0), -k0 / k1);
-            else
-                return Point2f((h.x * k1 + f.x * k0) / (e.x * k1 - g.x * k0), -k0 / k1);
-        }
-
-        float v0, v1;
-        if (!Quadratic(k2, k1, k0, &v0, &v1))
-            return Point2f(0, 0);
-
-        float u = (h.x - f.x * v0) / (e.x + g.x * v0);
-        if (u < 0 || u > 1 || v0 < 0 || v0 > 1)
-            return Point2f((h.x - f.x * v1) / (e.x + g.x * v1), v1);
-        return Point2f(u, v0);
-    }*/
-
-    class Frame {
-    public:
-        // Frame Public Methods
-        Frame() : x(1, 0, 0), y(0, 1, 0), z(0, 0, 1) {}
-        Frame(TanVector3f x, TanVector3f y, TanVector3f z) : x(x), y(y), z(z) {}
-
-        static Frame FromXZ(TanVector3f x, TanVector3f z) {
-            return Frame(x, TanVector3f(Cross(z, x)), z);
-        }
-        static Frame FromXY(TanVector3f x, TanVector3f y) {
-            return Frame(x, y, TanVector3f(Cross(x, y)));
-        }
-        static Frame FromZ(TanVector3f z) {
-            TanVector3f x, y;
-            CoordinateSystem(z, &x, &y);
-            return Frame(x, y, z);
-        }
-        static Frame FromX(TanVector3f x) {
-            TanVector3f y, z;
-            CoordinateSystem(x, &y, &z);
-            return Frame(x, y, z);
-        }
-        static Frame FromY(TanVector3f y) {
-            TanVector3f x, z;
-            CoordinateSystem(y, &z, &x);
-            return Frame(x, y, z);
-        }
-
-        static Frame FromX(CotVector3f x) {
-            TanVector3f y, z;
-            CoordinateSystem(x, &y, &z);
-            return Frame(TanVector3f(x), y, z);
-        }
-        static Frame FromY(CotVector3f y) {
-            TanVector3f x, z;
-            CoordinateSystem(y, &z, &x);
-            return Frame(x, TanVector3f(y), z);
-        }
-        static Frame FromZ(CotVector3f z) {
-            return FromZ(TanVector3f(z));
-        }
-
-        TanVector3f ToLocal(TanVector3f v) const {
-            return TanVector3f(Dot(v, x), Dot(v, y), Dot(v, z));
-        }
-        CotVector3f ToLocal(CotVector3f n) const {
-            return CotVector3f(Dot(n, x), Dot(n, y), Dot(n, z));
-        }
-        TanVector3f FromLocal(TanVector3f v) const {
-            return TanVector3f(v.x * x + v.y * y + v.z * z);
-        }
-        CotVector3f FromLocal(CotVector3f n) const {
-            return CotVector3f(n.x * x + n.y * y + n.z * z);
-        }
-
-        // Frame Public Members
-        TanVector3f x, y, z;
-    };
-
-} //namespace lightfold
+} // namespace lightfold
