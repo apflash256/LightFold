@@ -1,7 +1,7 @@
 file(GLOB_RECURSE LIGHTFOLD_SRC "*.cpp")
 
 add_executable(lightfold ${LIGHTFOLD_SRC})
-set_target_properties(lightfold  PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES)
+set_target_properties(lightfold  PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES)
 target_include_directories(lightfold
   PRIVATE
     ${CMAKE_SOURCE_DIR}/src/ext

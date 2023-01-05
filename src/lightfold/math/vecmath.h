@@ -1,7 +1,8 @@
 #pragma once
 
 #include <array>
-#include<type_traits>
+#include <type_traits>
+#include <algorithm>
 
 #include <math/math.h>
 
@@ -24,10 +25,12 @@ namespace lightfold {
     using Point2i = Point2<int>;
     using Point3f = Point3<float>;
     using Point3i = Point3<int>;
+    class Point3fi;
 
     template <typename T>
     class TanVector3;
     using TanVector3f = TanVector3<float>;
+    class TanVector3fi;
 
     template <typename T>
     class CotVector3;
@@ -118,7 +121,7 @@ namespace lightfold {
         }
 
         // Tuple2 Public Members
-        T x{}, y{};
+        T x, y;
     };
 
     template <typename T>
@@ -190,22 +193,21 @@ namespace lightfold {
         }
 
         // Tuple3 Public Members
-        T x{}, y{}, z{};
+        T x, y, z;
     };
 
     template <typename T>
     class Point2 : public Tuple2<T> {
     public:
         // Point2 Public Methods
-        Point2() { x = y = 0; }
+        Point2() = default;
         Point2(T x, T y) : Tuple2<T>(x, y) {}
 
         template <typename U>
-        explicit Point2(Point2<U> v) : Tuple2<T>(T(v.x), T(v.y)) {}
-        template <typename U>
-        explicit Point2(GeoVector2<U> v) : Tuple2<T>(T(v.x), T(v.y)) {}
+        explicit Point2(Tuple2<U> p) : Tuple2<T>(T(p.x), T(p.y)) {}
 
         // We cannot add two points, but we can add a point and a vector.
+        // Here we specify the vectors to be tangent vectors.
         template <typename U>
         auto operator+(GeoVector2<U> v) const->Point2<decltype(T{} + U{}) > {
             return { x + v.x, y + v.y };
@@ -230,6 +232,10 @@ namespace lightfold {
             y -= v.y;
             return *this;
         }
+        // If we force to add two points, it produces the Tuple.
+        using Tuple2<T>::x;
+        using Tuple2<T>::y;
+        using Tuple2<T>::operator+;
     };
 
     template <typename T>
@@ -271,6 +277,9 @@ namespace lightfold {
             return *this;
         }
         // If we force to add two points, it produces the Tuple.
+        using Tuple3<T>::x;
+        using Tuple3<T>::y;
+        using Tuple3<T>::z;
         using Tuple3<T>::operator+;
     };
 
@@ -313,6 +322,92 @@ namespace lightfold {
 
         template <typename U>
         explicit TanVector3(GeoVector3<U> v) : GeoVector3<T>(T(v.x), T(v.y), T(v.z)) {}
+    };
+
+    class Point3fi : public Point3<Interval> {
+    public:
+        //using Point3<Interval>::x;
+        //using Point3<Interval>::y;
+        //using Point3<Interval>::z;
+        //using Point3<Interval>::operator+;
+        //using Point3<Interval>::operator*;
+        //using Point3<Interval>::operator*=;
+
+        Point3fi() = default;
+        Point3fi(Interval x, Interval y, Interval z) : Point3<Interval>(x, y, z) {}
+        Point3fi(float x, float y, float z)
+            : Point3<Interval>(Interval(x), Interval(y), Interval(z)) {}
+        Point3fi(const Point3f& p)
+            : Point3<Interval>(Interval(p.x), Interval(p.y), Interval(p.z)) {}
+        Point3fi(Point3<Interval> p) : Point3<Interval>(p) {}
+        Point3fi(Point3f p, TanVector3f e)
+            : Point3<Interval>(Interval::FromValueAndError(p.x, e.x),
+                Interval::FromValueAndError(p.y, e.y),
+                Interval::FromValueAndError(p.z, e.z)) {}
+
+        TanVector3f Error() const { return { x.Width() / 2, y.Width() / 2, z.Width() / 2 }; }
+
+        bool IsExact() const { return x.Width() == 0 && y.Width() == 0 && z.Width() == 0; }
+
+        // Meh--can't seem to get these from Point3 via using declarations...
+        template <typename U>
+        Point3fi operator+(TanVector3<U> v) const {
+            return { x + v.x, y + v.y, z + v.z };
+        }
+        template <typename U>
+        Point3fi& operator+=(TanVector3<U> v) {
+            x += v.x;
+            y += v.y;
+            z += v.z;
+            return *this;
+        }
+        Point3fi operator-() const { return { -x, -y, -z }; }
+        template <typename U>
+        Point3fi operator-(Point3<U> p) const {
+            return { x - p.x, y - p.y, z - p.z };
+        }
+        template <typename U>
+        Point3fi operator-(TanVector3<U> v) const {
+            return { x - v.x, y - v.y, z - v.z };
+        }
+        template <typename U>
+        Point3fi& operator-=(TanVector3<U> v) {
+            x -= v.x;
+            y -= v.y;
+            z -= v.z;
+            return *this;
+        }
+    };
+
+    class TanVector3fi : public TanVector3<Interval> {
+    public:
+        // TanVector3fi Public Methods
+        //using TanVector3<Interval>::x;
+        //using TanVector3<Interval>::y;
+        //using TanVector3<Interval>::z;
+        //using TanVector3<Interval>::operator+;
+        //using TanVector3<Interval>::operator+=;
+        //using TanVector3<Interval>::operator*;
+        //using TanVector3<Interval>::operator*=;
+
+        TanVector3fi() = default;
+        TanVector3fi(float x, float y, float z)
+            : TanVector3<Interval>(Interval(x), Interval(y), Interval(z)) {}
+        TanVector3fi(Interval x, Interval y, Interval z) : TanVector3<Interval>(x, y, z) {}
+        TanVector3fi(TanVector3f p)
+            : TanVector3<Interval>(Interval(p.x), Interval(p.y), Interval(p.z)) {}
+        template <typename T>
+        explicit TanVector3fi(Point3<T> p)
+            : TanVector3<Interval>(Interval(p.x), Interval(p.y), Interval(p.z)) {}
+        TanVector3fi(TanVector3<Interval> pfi) : TanVector3<Interval>(pfi) {}
+        TanVector3fi(TanVector3f v, TanVector3f e)
+            : TanVector3<Interval>(Interval::FromValueAndError(v.x, e.x),
+                Interval::FromValueAndError(v.y, e.y),
+                Interval::FromValueAndError(v.z, e.z)) {}
+
+        TanVector3f Error() const { return { x.Width() / 2, y.Width() / 2, z.Width() / 2 }; }
+
+        bool IsExact() const { return x.Width() == 0 && y.Width() == 0 && z.Width() == 0; }
     };
 
     template <typename T>
@@ -390,8 +485,8 @@ namespace lightfold {
             return Point2<T>((*this)[(corner & 1)].x, (*this)[(corner & 2) ? 1 : 0].y);
         }
         Point2<T> Lerp(Point2f t) const {
-            return Point2<T>(lightfold::Lerp(t.x, pMin.x, pMax.x),
-                lightfold::Lerp(t.y, pMin.y, pMax.y));
+            return Point2<T>(std::lerp(t.x, pMin.x, pMax.x),
+                std::lerp(t.y, pMin.y, pMax.y));
         }
         GeoVector2<T> Offset(Point2<T> p) const {
             GeoVector2<T> o = p - pMin;
@@ -441,7 +536,7 @@ namespace lightfold {
             return pMin.x > pMax.x || pMin.y > pMax.y || pMin.z > pMax.z;
         }
         int MaxDimension() const {
-            Vector3<T> d = Diagonal();
+            TanVector3<T> d = Diagonal();
             if (d.x > d.y && d.x > d.z)
                 return 0;
             else if (d.y > d.z)
@@ -468,11 +563,11 @@ namespace lightfold {
             return pMax - pMin;
         }
         T SurfaceArea() const {
-            Vector3<T> d = Diagonal();
+            TanVector3<T> d = Diagonal();
             return 2 * (d.x * d.y + d.x * d.z + d.y * d.z);
         }
         T Volume() const {
-            Vector3<T> d = Diagonal();
+            TanVector3<T> d = Diagonal();
             return d.x * d.y * d.z;
         }
         Point3<T> Corner(int corner) const {
@@ -481,8 +576,8 @@ namespace lightfold {
         }
 
         Point3f Lerp(Point3f t) const {
-            return Point3f(lightfold::Lerp(t.x, pMin.x, pMax.x), lightfold::Lerp(t.y, pMin.y, pMax.y),
-                lightfold::Lerp(t.z, pMin.z, pMax.z));
+            return Point3f(std::lerp(t.x, pMin.x, pMax.x), std::lerp(t.y, pMin.y, pMax.y),
+                std::lerp(t.z, pMin.z, pMax.z));
         }
         TanVector3f Offset(Point3f p) const {
             TanVector3f o = p - pMin;
@@ -564,6 +659,76 @@ namespace lightfold {
         std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
     inline C<T> operator-(C<T> t) {
         return { -t.x, -t.y };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline C<T> Abs(C<T> t) {
+        return { std::abs(t.x), std::abs(t.y) };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline C<T> Ceil(C<T> t) {
+        return { std::ceil(t.x), std::ceil(t.y) };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline C<T> Floor(C<T> t) {
+        return { std::floor(t.x), std::floor(t.y) };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline auto Lerp(float t, C<T> t0, C<T> t1) {
+        return (1 - t) * t0 + t * t1;
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline C<T> FMA(float a, C<T> b, C<T> c) {
+        return { std::fma(a, b.x, c.x), std::fma(a, b.y, c.y) };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline C<T> FMA(C<T> a, float b, C<T> c) {
+        return FMA(b, a, c);
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline C<T> Min(C<T> t1, C<T> t2) {
+        return { std::min(t1.x, t2.x), std::min(t1.y, t2.y) };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline T MinComponentValue(C<T> t) {
+        return std::min({ t.x, t.y });
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline int MinComponentIndex(C<T> t) {
+        return (t.x < t.y) ? 0 : 1;
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline C<T> Max(C<T> t1, C<T> t2) {
+        return { std::max(t1.x, t2.x), std::max(t1.y, t2.y) };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline T MaxComponentValue(C<T> t) {
+        return std::max({ t.x, t.y });
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline int MaxComponentIndex(C<T> t) {
+        return (t.x > t.y) ? 0 : 1;
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline C<T> Permute(C<T> t, std::array<int, 2> p) {
+        return { t[p[0]], t[p[1]] };
+    }
+    template <typename T, template <typename> class C,
+        std::enable_if_t<std::is_base_of<Tuple2<T>, C<T>>::value>* = nullptr>
+    inline T HProd(C<T> t) {
+        return t.x * t.y;
     }
 
     // Tuple3 Inline Functions
@@ -886,8 +1051,8 @@ namespace lightfold {
     template <typename T, typename U>
     inline Bounds3<T> Expand(const Bounds3<T>& b, U delta) {
         Bounds3<T> ret;
-        ret.pMin = b.pMin - Vector3<T>(delta, delta, delta);
-        ret.pMax = b.pMax + Vector3<T>(delta, delta, delta);
+        ret.pMin = b.pMin - TanVector3<T>(delta, delta, delta);
+        ret.pMax = b.pMax + TanVector3<T>(delta, delta, delta);
         return ret;
     }
     template <typename T>
@@ -901,7 +1066,7 @@ namespace lightfold {
             float tFar = (pMax[i] - o[i]) * invRayDir;
             // Update parametric interval from slab intersection $t$ values
             if (tNear > tFar)
-                pstd::swap(tNear, tFar);
+                std::swap(tNear, tFar);
             // Update _tFar_ to ensure robust ray--bounds intersection
             tFar *= 1 + 2 * gamma(3);
 
@@ -957,7 +1122,7 @@ namespace lightfold {
         return Bounds2iIterator(b, b.pMin);
     }
     inline Bounds2iIterator end(const Bounds2i& b) {
-        // CotVectorly, the ending point is at the minimum x value and one past
+        // Normally, the ending point is at the minimum x value and one past
         // the last valid y value.
         Point2i pEnd(b.pMin.x, b.pMax.y);
         // However, if the bounds are degenerate, override the end point to
@@ -1097,50 +1262,6 @@ namespace lightfold {
     inline bool SameHemisphere(TanVector3f w, CotVector3f wp) {
         return w.z * wp.z > 0;
     }
-
-    class OctahedralVector {
-    public:
-        // OctahedralVector Public Methods
-        OctahedralVector() = default;
-        OctahedralVector(GeoVector3f v) {
-            v /= std::abs(v.x) + std::abs(v.y) + std::abs(v.z);
-            if (v.z >= 0) {
-                x = Encode(v.x);
-                y = Encode(v.y);
-            }
-            else {
-                // Encode octahedral vector with $z < 0$
-                x = Encode((1 - std::abs(v.y)) * Sign(v.x));
-                y = Encode((1 - std::abs(v.x)) * Sign(v.y));
-            }
-        }
-
-        explicit operator GeoVector3f() const {
-            GeoVector3f v;
-            v.x = -1 + 2 * (x / 65535.f);
-            v.y = -1 + 2 * (y / 65535.f);
-            v.z = 1 - (std::abs(v.x) + std::abs(v.y));
-            // Reparameterize directions in the $z<0$ portion of the octahedron
-            if (v.z < 0) {
-                float xo = v.x;
-                v.x = (1 - std::abs(v.y)) * Sign(xo);
-                v.y = (1 - std::abs(xo)) * Sign(v.y);
-            }
-
-            return Normalize(v);
-        }
-
-    private:
-        // OctahedralVector Private Methods
-        static float Sign(float v) {
-            return std::copysign(1.f, v);
-        }
-        static uint16_t Encode(float f) {
-            return (uint16_t)std::round(Clamp((f + 1) / 2, 0, 1) * 65535.f);
-        }
-        // OctahedralVector Private Members
-        uint16_t x, y;
-    };
 
     class DirectionCone {
     public:
