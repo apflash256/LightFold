@@ -11,11 +11,12 @@ namespace lightfold {
         Point3f operator()(float t) const { return o + d * t; }
 
         Ray() = default;
-        Ray(Point3f o, TanVector3f d) : o(o), d(d) {}
+        Ray(Point3f o, TanVector3f d, float tMax = Infinity) : o(o), d(d), tMax(tMax) {}
 
         // Ray Public Members
         Point3f o;
         TanVector3f d;
+        mutable float tMax;
     };
 
     // RayDifferential Definition
@@ -23,7 +24,7 @@ namespace lightfold {
     public:
         // RayDifferential Public Methods
         RayDifferential() = default;
-        RayDifferential(Point3f o, TanVector3f d) : Ray(o, d) {}
+        RayDifferential(Point3f o, TanVector3f d, float tMax = Infinity) : Ray(o, d, tMax) {}
 
         explicit RayDifferential(const Ray& ray) : Ray(ray) {}
 

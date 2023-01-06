@@ -24,7 +24,6 @@ namespace lightfold {
 	public:
 		// Camera Public Methods
 		Camera(const Transform& CameraToWorld, Film* film) : CameraToWorld(CameraToWorld), film(film) {}
-		//virtual ~Camera();
 		virtual float GenerateRay(const CameraSample& sample, Ray* ray) const = 0;
 
 		// Camera Public Data

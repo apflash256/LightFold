@@ -2,6 +2,7 @@
 #include <imageio.h>
 #include <math/transform.h>
 #include <objects/camera.h>
+#include <objects/shape.h>
 
 using namespace lightfold;
 
