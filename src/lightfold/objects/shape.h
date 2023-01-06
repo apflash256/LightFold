@@ -63,8 +63,13 @@ namespace lightfold {
         std::unique_ptr<CotVector3f[]> n;
         std::unique_ptr<TanVector3f[]> s;
         std::unique_ptr<Point2f[]> uv;
-
     };
+
+    std::vector<std::shared_ptr<Shape>> CreateTriangleMesh(
+        const Transform* ObjectToWorld, const Transform* WorldToObject,
+        bool reverseOrientation, int nTriangles,
+        const int* vertexIndices, int nVertices, const Point3f* p,
+        const TanVector3f* s, const CotVector3f* n, const Point2f* uv);
 
     class Triangle : public Shape {
     public:

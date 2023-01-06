@@ -82,9 +82,9 @@ namespace lightfold {
         else if (det > 0 && (tScaled <= 0 || tScaled > ray.tMax * det))
             return false;
         float invDet = 1 / det;
-        float b0 = e0 * invDet;
-        float b1 = e1 * invDet;
-        float b2 = e2 * invDet;
+        //float b0 = e0 * invDet;
+        //float b1 = e1 * invDet;
+        //float b2 = e2 * invDet;
         float t = tScaled * invDet;
         float maxZt = MaxComponentValue(Abs(TanVector3f(p0t.z, p1t.z, p2t.z)));
         float deltaZ = gamma(3) * maxZt;

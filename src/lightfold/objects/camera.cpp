@@ -30,7 +30,7 @@ namespace lightfold {
             ray->d = Normalize(pFocus - ray->o);
         }
         *ray = CameraToWorld(*ray);
-        return 1;
+        return 1.f;
     }
 
 } // namespace lightfold
