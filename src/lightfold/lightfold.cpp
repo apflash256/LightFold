@@ -1,5 +1,6 @@
 #include <iostream>
 #include <imageio.h>
+#include <core/spectra.h>
 #include <math/transform.h>
 #include <objects/camera.h>
 #include <objects/shape.h>
