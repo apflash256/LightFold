@@ -4,6 +4,7 @@
 #include <math/transform.h>
 #include <objects/camera.h>
 #include <objects/shape.h>
+#include <sample/sampler.h>
 
 #define WIDTH 3840
 #define HEIGHT 2160
