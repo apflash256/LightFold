@@ -127,4 +127,75 @@ namespace lightfold {
         return p;
     }
 
+    std::vector<uint16_t> ComputeRadicalInversePermutations(pcg32& rng) {
+        std::vector<uint16_t> perms;
+        int permArraySize = 0;
+        for (int i = 0; i < PrimeTableSize; ++i)
+            permArraySize += Primes[i];
+        perms.resize(permArraySize);
+        uint16_t* p = &perms[0];
+        for (int i = 0; i < PrimeTableSize; ++i) {
+            for (int j = 0; j < Primes[i]; ++j)
+                p[j] = j;
+            Shuffle(p, Primes[i], 1, rng);
+            p += Primes[i];
+        }
+        return perms;
+    }
+
+    std::vector<uint16_t> HaltonSampler::radicalInversePermutations;
+
+    HaltonSampler::HaltonSampler(int samplesPerPixel, const Bounds2i& sampleBounds)
+        : GlobalSampler(samplesPerPixel) {
+        if (radicalInversePermutations.size() == 0) {
+            pcg32 rng;
+            radicalInversePermutations = ComputeRadicalInversePermutations(rng);
+        }
+        GeoVector2i res = sampleBounds.pMax - sampleBounds.pMin;
+        for (int i = 0; i < 2; ++i) {
+            int base = (i == 0) ? 2 : 3;
+            int scale = 1, exp = 0;
+            while (scale < std::min(res[i], kMaxResolution)) {
+                scale *= base;
+                ++exp;
+            }
+            baseScales[i] = scale;
+            baseExponents[i] = exp;
+        }
+        sampleStride = baseScales[0] * baseScales[1];
+        multInverse[0] = multiplicativeInverse(baseScales[1], baseScales[0]);
+        multInverse[1] = multiplicativeInverse(baseScales[0], baseScales[1]);
+    }
+
+    int64_t HaltonSampler::GetIndexForSample(int64_t sampleNum) const {
+        if (currentPixel != pixelForOffset) {
+            offsetForCurrentPixel = 0;
+            if (sampleStride > 1) {
+                Point2i pm(currentPixel[0] % kMaxResolution, currentPixel[1] % kMaxResolution);
+                for (int i = 0; i < 2; ++i) {
+                    uint64_t dimOffset = (i == 0) ?
+                        InverseRadicalInverse(pm[i], 2, baseExponents[i]) :
+                        InverseRadicalInverse(pm[i], 3, baseExponents[i]);
+                    offsetForCurrentPixel += dimOffset * (sampleStride / baseScales[i]) * multInverse[i];
+                }
+                offsetForCurrentPixel %= sampleStride;
+            }
+            pixelForOffset = currentPixel;
+        }
+        return offsetForCurrentPixel + sampleNum * sampleStride;
+    }
+
+    float HaltonSampler::SampleDimension(int64_t index, int dim) const {
+        if (dim == 0)
+            return RadicalInverse(dim, index >> baseExponents[0]);
+        else if (dim == 1)
+            return RadicalInverse(dim, index / baseScales[1]);
+        else
+            return ScrambledRadicalInverse(dim, index, PermutationForDimension(dim));
+    }
+
+    std::unique_ptr<Sampler> HaltonSampler::Clone(int seed) {
+        return std::unique_ptr<Sampler>(new HaltonSampler(*this));
+    }
+
 } // namespace lightfold
