@@ -44,4 +44,6 @@ namespace lightfold {
         float intensity;
     };
 
+    using Spectrum = BW;
+
 } // namespace lightfold

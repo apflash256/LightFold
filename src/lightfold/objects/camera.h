@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core/film.h>
 #include <math/sample.h>
 #include <math/transform.h>
 
@@ -8,16 +9,6 @@ namespace lightfold {
 	struct CameraSample {
 		Point2f pFilm;
 		Point2f pLens;
-	};
-
-	class Film {
-	public:
-		// Film Public Methods
-		Film(Point2i fullResolution, float scale) : fullResolution(fullResolution), scale(scale) {}
-
-		// Film Public Data
-		const Point2i fullResolution;
-		const float scale;
 	};
 
 	class Camera {
