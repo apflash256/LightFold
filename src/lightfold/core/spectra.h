@@ -28,16 +28,28 @@ namespace lightfold {
         bool IsBlack() const { return intensity == 0; }
         RGB toRGB() const { return{ intensity, intensity, intensity }; }
         BW operator+(const BW& s) const { return { intensity + s.intensity }; }
-        BW& operator+=(const BW& s) { intensity += s.intensity; }
+        BW& operator+=(const BW& s) {
+            intensity += s.intensity;
+            return *this;
+        }
         BW operator-(const BW& s) const { return { intensity - s.intensity }; }
         BW operator/(const BW& s) const { return { intensity / s.intensity }; }
         BW operator*(const BW& s) const { return { intensity * s.intensity }; }
-        BW& operator*=(const BW& s) { intensity *= s.intensity; }
+        BW& operator*=(const BW& s) {
+            intensity *= s.intensity;
+            return *this;
+        }
         BW operator*(float a) const { return { intensity * a }; }
         friend inline BW operator*(float a, const BW& s);
-        BW& operator*=(float a) { intensity *= a; }
+        BW& operator*=(float a) {
+            intensity *= a;
+            return *this;
+        }
         BW operator/(float a) const { return { intensity / a }; }
-        BW& operator/=(float a) { intensity /= a; }
+        BW& operator/=(float a) {
+            intensity /= a;
+            return *this;
+        }
         bool operator==(const BW& s) const { return { intensity == s.intensity }; }
         bool operator!=(const BW& s) const { return { intensity != s.intensity }; }
     private:
