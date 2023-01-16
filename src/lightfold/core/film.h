@@ -21,7 +21,6 @@ namespace lightfold {
         float rgb[3] = { 0, 0, 0 };
         float filterWeightSum = 0;
         AtomicFloat splatRGB[3];
-        float pad;
     };
 
     class FilmTile {

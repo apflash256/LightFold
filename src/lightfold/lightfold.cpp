@@ -3,9 +3,9 @@
 #include <objects/shape.h>
 #include <sample/sampler.h>
 
-#define WIDTH 3840
-#define HEIGHT 2160
-#define SPP 16
+constexpr auto WIDTH = 3840;
+constexpr auto HEIGHT = 2160;
+constexpr auto SPP = 16;
 
 using namespace lightfold;
 
@@ -37,7 +37,7 @@ int main(void) {
 	Triangle myTri(&otw, &wto, false, myMesh, 0);
 
 	HaltonSampler mySampler(SPP, sampleBounds);
-
+	ParallelInit();
 	ParallelFor2D(
 		[&](Point2i tile) {
 			int seed = tile.y * nTiles.x + tile.x;
@@ -66,6 +66,6 @@ int main(void) {
 			myCam.film->MergeFilmTile(std::move(filmTile));
 		}, nTiles);
 	myCam.film->WriteImage();
-
+	ParallelCleanup();
 	return 0;
 }

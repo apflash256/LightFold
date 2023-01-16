@@ -74,7 +74,7 @@ namespace lightfold {
     static std::condition_variable workListCondition;
 
     static void workerThreadFunc(int tIndex, std::shared_ptr<Barrier> barrier) {
-        std::cout << "Info : Started execution in worker thread " << tIndex;
+        std::cout << "Info : Started execution in worker thread " << tIndex << std::endl;
         ThreadIndex = tIndex;
 
         // Give the profiler a chance to do per-thread initialization for
@@ -142,7 +142,7 @@ namespace lightfold {
                 if (loop.Finished()) workListCondition.notify_all();
             }
         }
-        std::cout << "Info : Exiting worker thread " << tIndex;
+        std::cout << "Info : Exiting worker thread " << tIndex << std::endl;
     }
 
     // Parallel Definitions
