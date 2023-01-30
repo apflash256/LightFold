@@ -64,8 +64,7 @@ namespace lightfold {
         Bounds2i GetPixelBounds() const { return pixelBounds; }
         FilmTilePixel& GetPixel(const Point2i& p) {
             int width = pixelBounds.pMax.x - pixelBounds.pMin.x;
-            int offset = (p.x - pixelBounds.pMin.x) +
-                (p.y - pixelBounds.pMin.y) * width;
+            int offset = (p.x - pixelBounds.pMin.x) + (p.y - pixelBounds.pMin.y) * width;
             return pixels[offset];
         }
 

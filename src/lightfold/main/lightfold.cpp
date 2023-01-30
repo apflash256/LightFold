@@ -38,31 +38,31 @@ int main(void) {
 	ParallelFor2D(
 		[&](Point2i tile) {
 			int seed = tile.y * nTiles.x + tile.x;
-	std::unique_ptr<Sampler> tileSampler = mySampler.Clone(seed);
+			std::unique_ptr<Sampler> tileSampler = mySampler.Clone(seed);
 
-	int x0 = sampleBounds.pMin.x + tile.x * tileSize;
-	int x1 = std::min(x0 + tileSize, sampleBounds.pMax.x);
-	int y0 = sampleBounds.pMin.y + tile.y * tileSize;
-	int y1 = std::min(y0 + tileSize, sampleBounds.pMax.y);
-	Bounds2i tileBounds(Point2i(x0, y0), Point2i(x1, y1));
+			int x0 = sampleBounds.pMin.x + tile.x * tileSize;
+			int x1 = std::min(x0 + tileSize, sampleBounds.pMax.x);
+			int y0 = sampleBounds.pMin.y + tile.y * tileSize;
+			int y1 = std::min(y0 + tileSize, sampleBounds.pMax.y);
+			Bounds2i tileBounds(Point2i(x0, y0), Point2i(x1, y1));
 
-	std::unique_ptr<FilmTile> filmTile = myCam.film->GetFilmTile(tileBounds);
-	for (Point2i pixel : tileBounds) {
-		tileSampler->StartPixel(pixel);
-		do {
-			CameraSample cameraSample = tileSampler->GetCameraSample(pixel);
-			Ray ray;
-			float rayWeight = myCam.GenerateRay(cameraSample, &ray);
-			float f;
-			float depth = myTri.Intersect(ray, &f) ? 1 / f : 0.f;
-			Spectrum L(depth);
-			// L is the data!
-			filmTile->AddSample(cameraSample.pFilm, L, rayWeight);
-		} while (tileSampler->StartNextSample());
-	}
-	myCam.film->MergeFilmTile(std::move(filmTile));
+			std::unique_ptr<FilmTile> filmTile = myCam.film->GetFilmTile(tileBounds);
+			for (Point2i pixel : tileBounds) {
+				tileSampler->StartPixel(pixel);
+				do {
+					CameraSample cameraSample = tileSampler->GetCameraSample(pixel);
+					Ray ray;
+					float rayWeight = myCam.GenerateRay(cameraSample, &ray);
+					float f;
+					float depth = myTri.Intersect(ray, &f) ? 1 / f : 0.f;
+					Spectrum L(depth); // L is the data!
+					filmTile->AddSample(cameraSample.pFilm, L, rayWeight);
+				} while (tileSampler->StartNextSample());
+			}
+			myCam.film->MergeFilmTile(std::move(filmTile));
 		}, nTiles);
 	myCam.film->WriteImage();
 	ParallelCleanup();
+
 	return 0;
 }

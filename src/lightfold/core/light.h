@@ -5,7 +5,7 @@
 
 namespace lightfold {
 
-    class Interaction;
+    struct Interaction;
     class Scene;
     class VisibilityTester;
 

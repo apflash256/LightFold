@@ -31,8 +31,8 @@ namespace lightfold {
 			lensRadius = lensr;
 			focalDistance = focald;
 			ScreenToRaster = Scale((float)film->fullResolution.x, (float)film->fullResolution.y, 1) *
-				Scale(1 / (screenWindow.pMax.x - screenWindow.pMin.x), 1 / (screenWindow.pMin.y - screenWindow.pMax.y), 1) *
-				Translate(Tangent3f(-screenWindow.pMin.x, -screenWindow.pMax.y, 0));
+				Scale(1 / (screenWindow.pMax.x - screenWindow.pMin.x), 1 / (screenWindow.pMax.y - screenWindow.pMin.y), 1) *
+				Translate(Tangent3f(-screenWindow.pMin.x, -screenWindow.pMin.y, 0));
 			RasterToScreen = Inverse(ScreenToRaster);
 			RasterToCamera = Inverse(CameraToScreen) * RasterToScreen;
 		}
