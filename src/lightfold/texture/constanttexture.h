@@ -8,6 +8,7 @@ namespace lightfold {
 	public:
 		// ConstantTexture Public Methods
 		T Evaluate(const SurfaceInteraction&) const { return value; }
+		ConstantTexture<T>(T value) : value(value) { }
 
 		// ConstantTexture Public Data
 		T value;

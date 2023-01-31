@@ -332,13 +332,6 @@ namespace lightfold {
 
     class Point3fi : public Point3<Interval> {
     public:
-        //using Point3<Interval>::x;
-        //using Point3<Interval>::y;
-        //using Point3<Interval>::z;
-        //using Point3<Interval>::operator+;
-        //using Point3<Interval>::operator*;
-        //using Point3<Interval>::operator*=;
-
         Point3fi() = default;
         Point3fi(Interval x, Interval y, Interval z) : Point3<Interval>(x, y, z) {}
         Point3fi(float x, float y, float z)
@@ -387,15 +380,6 @@ namespace lightfold {
 
     class Tangent3fi : public Tangent3<Interval> {
     public:
-        // Tangent3fi Public Methods
-        //using Tangent3<Interval>::x;
-        //using Tangent3<Interval>::y;
-        //using Tangent3<Interval>::z;
-        //using Tangent3<Interval>::operator+;
-        //using Tangent3<Interval>::operator+=;
-        //using Tangent3<Interval>::operator*;
-        //using Tangent3<Interval>::operator*=;
-
         Tangent3fi() = default;
         Tangent3fi(float x, float y, float z)
             : Tangent3<Interval>(Interval(x), Interval(y), Interval(z)) {}

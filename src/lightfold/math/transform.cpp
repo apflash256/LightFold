@@ -1,5 +1,7 @@
 #include <math/transform.h>
 
+#include <core/interaction.h>
+
 #include <iostream>
 
 namespace lightfold {
@@ -65,12 +67,12 @@ namespace lightfold {
     }
 
     Transform LookAt(Point3f pos, Point3f look, Tangent3f up) {
-        SquareMatrix<4> worldFromCamera;
+        SquareMatrix<4> CameraToWorld;
         // Initialize fourth column of viewing matrix
-        worldFromCamera[0][3] = pos.x;
-        worldFromCamera[1][3] = pos.y;
-        worldFromCamera[2][3] = pos.z;
-        worldFromCamera[3][3] = 1.f;
+        CameraToWorld[0][3] = pos.x;
+        CameraToWorld[1][3] = pos.y;
+        CameraToWorld[2][3] = pos.z;
+        CameraToWorld[3][3] = 1.f;
 
         // Initialize first three columns of viewing matrix
         Tangent3f dir = Normalize(look - pos);
@@ -80,21 +82,20 @@ namespace lightfold {
             << " passed to LookAt are pointing in the same direction." << std::endl;
         Tangent3f right = Normalize(Cross(dir, Normalize(up)));
         Tangent3f newUp = Cross(right, dir);
-        worldFromCamera[0][0] = right.x;
-        worldFromCamera[1][0] = right.y;
-        worldFromCamera[2][0] = right.z;
-        worldFromCamera[3][0] = 0.f;
-        worldFromCamera[0][1] = newUp.x;
-        worldFromCamera[1][1] = newUp.y;
-        worldFromCamera[2][1] = newUp.z;
-        worldFromCamera[3][1] = 0.f;
-        worldFromCamera[0][2] = -dir.x;
-        worldFromCamera[1][2] = -dir.y;
-        worldFromCamera[2][2] = -dir.z;
-        worldFromCamera[3][2] = 0.f;
+        CameraToWorld[0][0] = -right.x;
+        CameraToWorld[1][0] = -right.y;
+        CameraToWorld[2][0] = -right.z;
+        CameraToWorld[3][0] = 0.f;
+        CameraToWorld[0][1] = newUp.x;
+        CameraToWorld[1][1] = newUp.y;
+        CameraToWorld[2][1] = newUp.z;
+        CameraToWorld[3][1] = 0.f;
+        CameraToWorld[0][2] = dir.x;
+        CameraToWorld[1][2] = dir.y;
+        CameraToWorld[2][2] = dir.z;
+        CameraToWorld[3][2] = 0.f;
 
-        SquareMatrix<4> cameraFromWorld = InvertOrExit(worldFromCamera);
-        return Transform(cameraFromWorld, worldFromCamera);
+        return Transform(InvertOrExit(CameraToWorld), CameraToWorld);
     }
 
     Transform Orthographic(float near, float far) {
@@ -119,6 +120,42 @@ namespace lightfold {
         for (int i = 0; i < 8; ++i)
             bt = Union(bt, (*this)(b.Corner(i)));
         return bt;
+    }
+
+    SurfaceInteraction Transform::operator()(const SurfaceInteraction& si) const {
+        SurfaceInteraction ret;
+        // Transform _p_ and _pError_ in _SurfaceInteraction_
+        ret.p = (*this)(si.p, si.pError, &ret.pError);
+
+        // Transform remaining members of _SurfaceInteraction_
+        const Transform& t = *this;
+        ret.n = Normalize(t(si.n));
+        ret.wo = Normalize(t(si.wo));
+        ret.time = si.time;
+        ret.mediumInterface = si.mediumInterface;
+        ret.uv = si.uv;
+        ret.shape = si.shape;
+        ret.dpdu = t(si.dpdu);
+        ret.dpdv = t(si.dpdv);
+        ret.dndu = t(si.dndu);
+        ret.dndv = t(si.dndv);
+        ret.shading.n = Normalize(t(si.shading.n));
+        ret.shading.dpdu = t(si.shading.dpdu);
+        ret.shading.dpdv = t(si.shading.dpdv);
+        ret.shading.dndu = t(si.shading.dndu);
+        ret.shading.dndv = t(si.shading.dndv);
+        ret.dudx = si.dudx;
+        ret.dvdx = si.dvdx;
+        ret.dudy = si.dudy;
+        ret.dvdy = si.dvdy;
+        ret.dpdx = t(si.dpdx);
+        ret.dpdy = t(si.dpdy);
+        ret.bsdf = si.bsdf;
+        ret.bssrdf = si.bssrdf;
+        ret.primitive = si.primitive;
+        //    ret.n = Faceforward(ret.n, ret.shading.n);
+        ret.shading.n = FaceForward(ret.shading.n, ret.n);
+        return ret;
     }
 
     Transform Transform::operator*(const Transform& t2) const {

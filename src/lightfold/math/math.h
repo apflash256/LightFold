@@ -183,7 +183,18 @@ namespace lightfold {
                 }
             return false;
         }
-        bool IsIdentity() const;
+        bool IsIdentity() const {
+            for (int i = 0; i < N; ++i)
+                for (int j = 0; j < N; ++j) {
+                    if (i == j) {
+                        if (m[i][j] != 1)
+                            return false;
+                    }
+                    else if (m[i][j] != 0)
+                        return false;
+                }
+            return true;
+        }
 
         std::span<const float> operator[](int i) const { return m[i]; }
         std::span<float> operator[](int i) { return std::span<float>(m[i]); }
@@ -191,21 +202,6 @@ namespace lightfold {
     private:
         float m[N][N];
     };
-
-    // SquareMatrix Inline Methods
-    template <int N>
-    inline bool SquareMatrix<N>::IsIdentity() const {
-        for (int i = 0; i < N; ++i)
-            for (int j = 0; j < N; ++j) {
-                if (i == j) {
-                    if (m[i][j] != 1)
-                        return false;
-                }
-                else if (m[i][j] != 0)
-                    return false;
-            }
-        return true;
-    }
 
     // SquareMatrix Inline Functions
     template <int N>

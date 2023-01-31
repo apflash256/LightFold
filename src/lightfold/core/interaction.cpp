@@ -1,5 +1,7 @@
 #include <core/interaction.h>
 #include <core/light.h>
+#include <core/primitive.h>
+#include <core/shape.h>
 
 namespace lightfold {
 

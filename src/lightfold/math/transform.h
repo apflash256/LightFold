@@ -4,6 +4,8 @@
 
 namespace lightfold {
 
+    class SurfaceInteraction;
+
     // Quaternion Definition
     class Quaternion {
     public:
@@ -133,8 +135,27 @@ namespace lightfold {
         Bounds3f operator()(const Bounds3f& b) const;
         Ray operator()(const Ray& r, float* tMax = nullptr) const;
         RayDifferential operator()(const RayDifferential& r, float* tMax = nullptr) const;
-        Transform operator*(const Transform& t2) const;
+        SurfaceInteraction operator()(const SurfaceInteraction& si) const;
+        
+        template <typename T>
+        inline Point3<T> operator()(const Point3<T>& pt,
+            Tangent3<T>* absError) const;
+        template <typename T>
+        inline Point3<T> operator()(const Point3<T>& p, const Tangent3<T>& pError,
+            Tangent3<T>* pTransError) const;
+        template <typename T>
+        inline Tangent3<T> operator()(const Tangent3<T>& v,
+            Tangent3<T>* vTransError) const;
+        template <typename T>
+        inline Tangent3<T> operator()(const Tangent3<T>& v, const Tangent3<T>& vError,
+            Tangent3<T>* vTransError) const;
+        inline Ray operator()(const Ray& r, Tangent3f* oError,
+            Tangent3f* dError) const;
+        inline Ray operator()(const Ray& r, const Tangent3f& oErrorIn,
+            const Tangent3f& dErrorIn, Tangent3f* oErrorOut,
+            Tangent3f* dErrorOut) const;
 
+        Transform operator*(const Transform& t2) const;
         bool SwapsHandedness() const;
         explicit Transform(const Frame& frame);
         explicit Transform(Quaternion q);
@@ -360,6 +381,139 @@ namespace lightfold {
         return ret;
     }
 
+
+    template <typename T>
+    inline Point3<T> Transform::operator()(const Point3<T>& p,
+        Tangent3<T>* pError) const {
+        T x = p.x, y = p.y, z = p.z;
+        // Compute transformed coordinates from point _pt_
+        T xp = (m[0][0] * x + m[0][1] * y) + (m[0][2] * z + m[0][3]);
+        T yp = (m[1][0] * x + m[1][1] * y) + (m[1][2] * z + m[1][3]);
+        T zp = (m[2][0] * x + m[2][1] * y) + (m[2][2] * z + m[2][3]);
+        T wp = (m[3][0] * x + m[3][1] * y) + (m[3][2] * z + m[3][3]);
+
+        // Compute absolute error for transformed point
+        T xAbsSum = (std::abs(m[0][0] * x) + std::abs(m[0][1] * y) +
+            std::abs(m[0][2] * z) + std::abs(m[0][3]));
+        T yAbsSum = (std::abs(m[1][0] * x) + std::abs(m[1][1] * y) +
+            std::abs(m[1][2] * z) + std::abs(m[1][3]));
+        T zAbsSum = (std::abs(m[2][0] * x) + std::abs(m[2][1] * y) +
+            std::abs(m[2][2] * z) + std::abs(m[2][3]));
+        *pError = gamma(3) * Tangent3<T>(xAbsSum, yAbsSum, zAbsSum);
+        if (wp == 1)
+            return Point3<T>(xp, yp, zp);
+        else
+            return Point3<T>(xp / wp, yp / wp, zp / wp);
+    }
+
+    template <typename T>
+    inline Point3<T> Transform::operator()(const Point3<T>& pt,
+        const Tangent3<T>& ptError,
+        Tangent3<T>* absError) const {
+        T x = pt.x, y = pt.y, z = pt.z;
+        T xp = (m[0][0] * x + m[0][1] * y) + (m[0][2] * z + m[0][3]);
+        T yp = (m[1][0] * x + m[1][1] * y) + (m[1][2] * z + m[1][3]);
+        T zp = (m[2][0] * x + m[2][1] * y) + (m[2][2] * z + m[2][3]);
+        T wp = (m[3][0] * x + m[3][1] * y) + (m[3][2] * z + m[3][3]);
+        absError->x =
+            (gamma(3) + (T)1) *
+            (std::abs(m[0][0]) * ptError.x + std::abs(m[0][1]) * ptError.y +
+                std::abs(m[0][2]) * ptError.z) +
+            gamma(3) * (std::abs(m[0][0] * x) + std::abs(m[0][1] * y) +
+                std::abs(m[0][2] * z) + std::abs(m[0][3]));
+        absError->y =
+            (gamma(3) + (T)1) *
+            (std::abs(m[1][0]) * ptError.x + std::abs(m[1][1]) * ptError.y +
+                std::abs(m[1][2]) * ptError.z) +
+            gamma(3) * (std::abs(m[1][0] * x) + std::abs(m[1][1] * y) +
+                std::abs(m[1][2] * z) + std::abs(m[1][3]));
+        absError->z =
+            (gamma(3) + (T)1) *
+            (std::abs(m[2][0]) * ptError.x + std::abs(m[2][1]) * ptError.y +
+                std::abs(m[2][2]) * ptError.z) +
+            gamma(3) * (std::abs(m[2][0] * x) + std::abs(m[2][1] * y) +
+                std::abs(m[2][2] * z) + std::abs(m[2][3]));
+        if (wp == 1.)
+            return Point3<T>(xp, yp, zp);
+        else
+            return Point3<T>(xp / wp, yp / wp, zp / wp);
+    }
+
+    template <typename T>
+    inline Tangent3<T> Transform::operator()(const Tangent3<T>& v,
+        Tangent3<T>* absError) const {
+        T x = v.x, y = v.y, z = v.z;
+        absError->x =
+            gamma(3) * (std::abs(m[0][0] * v.x) + std::abs(m[0][1] * v.y) +
+                std::abs(m[0][2] * v.z));
+        absError->y =
+            gamma(3) * (std::abs(m[1][0] * v.x) + std::abs(m[1][1] * v.y) +
+                std::abs(m[1][2] * v.z));
+        absError->z =
+            gamma(3) * (std::abs(m[2][0] * v.x) + std::abs(m[2][1] * v.y) +
+                std::abs(m[2][2] * v.z));
+        return Tangent3<T>(m[0][0] * x + m[0][1] * y + m[0][2] * z,
+            m[1][0] * x + m[1][1] * y + m[1][2] * z,
+            m[2][0] * x + m[2][1] * y + m[2][2] * z);
+    }
+
+    template <typename T>
+    inline Tangent3<T> Transform::operator()(const Tangent3<T>& v,
+        const Tangent3<T>& vError,
+        Tangent3<T>* absError) const {
+        T x = v.x, y = v.y, z = v.z;
+        absError->x =
+            (gamma(3) + (T)1) *
+            (std::abs(m[0][0]) * vError.x + std::abs(m[0][1]) * vError.y +
+                std::abs(m[0][2]) * vError.z) +
+            gamma(3) * (std::abs(m[0][0] * v.x) + std::abs(m[0][1] * v.y) +
+                std::abs(m[0][2] * v.z));
+        absError->y =
+            (gamma(3) + (T)1) *
+            (std::abs(m[1][0]) * vError.x + std::abs(m[1][1]) * vError.y +
+                std::abs(m[1][2]) * vError.z) +
+            gamma(3) * (std::abs(m[1][0] * v.x) + std::abs(m[1][1] * v.y) +
+                std::abs(m[1][2] * v.z));
+        absError->z =
+            (gamma(3) + (T)1) *
+            (std::abs(m[2][0]) * vError.x + std::abs(m[2][1]) * vError.y +
+                std::abs(m[2][2]) * vError.z) +
+            gamma(3) * (std::abs(m[2][0] * v.x) + std::abs(m[2][1] * v.y) +
+                std::abs(m[2][2] * v.z));
+        return Tangent3<T>(m[0][0] * x + m[0][1] * y + m[0][2] * z,
+            m[1][0] * x + m[1][1] * y + m[1][2] * z,
+            m[2][0] * x + m[2][1] * y + m[2][2] * z);
+    }
+
+    inline Ray Transform::operator()(const Ray& r, Tangent3f* oError,
+        Tangent3f* dError) const {
+        Point3f o = (*this)(r.o, oError);
+        Tangent3f d = (*this)(r.d, dError);
+        float tMax = r.tMax;
+        float lengthSquared = LengthSquared(d);
+        if (lengthSquared > 0) {
+            float dt = Dot(Abs(d), *oError) / lengthSquared;
+            o += d * dt;
+            //        tMax -= dt;
+        }
+        return Ray(o, d, tMax, r.time, r.medium);
+    }
+
+    inline Ray Transform::operator()(const Ray& r, const Tangent3f& oErrorIn,
+        const Tangent3f& dErrorIn, Tangent3f* oErrorOut,
+        Tangent3f* dErrorOut) const {
+        Point3f o = (*this)(r.o, oErrorIn, oErrorOut);
+        Tangent3f d = (*this)(r.d, dErrorIn, dErrorOut);
+        float tMax = r.tMax;
+        float lengthSquared = LengthSquared(d);
+        if (lengthSquared > 0) {
+            float dt = Dot(Abs(d), *oErrorOut) / lengthSquared;
+            o += d * dt;
+            //        tMax -= dt;
+        }
+        return Ray(o, d, tMax, r.time, r.medium);
+    }
+
     inline Transform::Transform(const Frame& frame)
         : Transform(SquareMatrix<4>(frame.x.x, frame.x.y, frame.x.z, 0.f, frame.y.x, frame.y.y,
             frame.y.z, 0.f, frame.z.x, frame.z.y, frame.z.z, 0.f, 0.f, 0.f, 0.f, 1.f)) {}
@@ -369,18 +523,18 @@ namespace lightfold {
         float xy = q.v.x * q.v.y, xz = q.v.x * q.v.z, yz = q.v.y * q.v.z;
         float wx = q.v.x * q.w, wy = q.v.y * q.w, wz = q.v.z * q.w;
 
-        mInv[0][0] = 1 - 2 * (yy + zz);
-        mInv[0][1] = 2 * (xy + wz);
-        mInv[0][2] = 2 * (xz - wy);
-        mInv[1][0] = 2 * (xy - wz);
-        mInv[1][1] = 1 - 2 * (xx + zz);
-        mInv[1][2] = 2 * (yz + wx);
-        mInv[2][0] = 2 * (xz + wy);
-        mInv[2][1] = 2 * (yz - wx);
-        mInv[2][2] = 1 - 2 * (xx + yy);
+        m[0][0] = 1 - 2 * (yy + zz);
+        m[0][1] = 2 * (xy + wz);
+        m[0][2] = 2 * (xz - wy);
+        m[1][0] = 2 * (xy - wz);
+        m[1][1] = 1 - 2 * (xx + zz);
+        m[1][2] = 2 * (yz + wx);
+        m[2][0] = 2 * (xz + wy);
+        m[2][1] = 2 * (yz - wx);
+        m[2][2] = 1 - 2 * (xx + yy);
 
         // Transpose since we are left-handed.  Ugh.
-        m = Transpose(mInv);
+        mInv = Transpose(m);
     }
 
     template <typename T>

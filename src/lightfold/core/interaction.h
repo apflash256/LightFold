@@ -2,10 +2,11 @@
 
 #include <core/material.h>
 #include <core/medium.h>
-#include <core/primitive.h>
-#include <core/shape.h>
 
 namespace lightfold {
+
+    class Shape;
+    class Primitive;
 
     struct Interaction {
         // Interaction Public Methods

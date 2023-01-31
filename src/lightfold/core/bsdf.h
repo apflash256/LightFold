@@ -2,7 +2,6 @@
 
 #include <core/interaction.h>
 #include <core/spectrum.h>
-
 #include <math/sample.h>
 
 namespace lightfold {

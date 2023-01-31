@@ -1,4 +1,6 @@
 #include <core/scene.h>
+#include <aggregate/bvh.h>
+#include <utils/uvsphere.h>
 
 constexpr auto WIDTH = 3840;
 constexpr auto HEIGHT = 2160;
@@ -13,25 +15,21 @@ int main(void) {
 	char filename[] = "testimg.exr";
 	Film myFilm(uhd, cropWindow, std::move(myFilter), 1.f, filename, 1.f);
 
-	Transform idt = Scale(1.f, 1.f, 1.f);
+	Point3f pos(1, 2, 1);
+	Point3f look(0, 0, 0);
+	Tangent3f up(0, 0, 1);
+	Transform c2w = Inverse(LookAt(pos, look, up));
 	Bounds2f screenWindow = { {-((float)WIDTH) / HEIGHT, -1.f},{((float)WIDTH) / HEIGHT, 1.f} };
 	float lensRadius = 0.f, focalDistance = 0.04f, fov = 1.0f;
-	PerspectiveCamera myCam(idt, screenWindow, lensRadius, focalDistance, fov, &myFilm);
+	PerspectiveCamera myCam(c2w, screenWindow, lensRadius, focalDistance, fov, &myFilm);
 
 	Bounds2i sampleBounds = myCam.film->GetSampleBounds();
 	Vector2i sampleExtent = sampleBounds.Diagonal();
 	const int tileSize = 16;
 	Point2i nTiles((sampleExtent.x + tileSize - 1) / tileSize, (sampleExtent.y + tileSize - 1) / tileSize);
 
-	Transform otw = Scale(1.f, 1.f, 1.f);
-	Point3f p[3] = { { -1.0f, -1.0f, 2.f } ,{ 1.0f, -1.0f, 4.f } ,{ 1.f, 1.0f, 6.f } };
-	Tangent3f* s = nullptr;
-	Normal3f* n = nullptr;
-	Point2f* uv = nullptr;
-	int vInds[3] = { 0,1,2 };
-	std::shared_ptr<TriangleMesh> myMesh = std::make_shared<TriangleMesh>(otw, 1, vInds, 3, p, s, n, uv);
-	Transform wto = Scale(1.f, 1.f, 1.f);
-	Triangle myTri(&otw, &wto, false, myMesh, 0);
+	auto prims = UVSphere(12, 24);
+	std::shared_ptr<Primitive> bvh = std::make_shared<BVHAccel>(prims);
 
 	HaltonSampler mySampler(SPP, sampleBounds);
 	ParallelInit();
@@ -53,10 +51,13 @@ int main(void) {
 					CameraSample cameraSample = tileSampler->GetCameraSample(pixel);
 					Ray ray;
 					float rayWeight = myCam.GenerateRay(cameraSample, &ray);
-					float f;
-					float depth = myTri.Intersect(ray, &f) ? 1 / f : 0.f;
-					Spectrum L(depth); // L is the data!
-					filmTile->AddSample(cameraSample.pFilm, L, rayWeight);
+					SurfaceInteraction isect;
+					float depth = 0;
+					if (bvh->Intersect(ray, &isect)) {
+						depth = 1.f / (Length(isect.p - pos) - 1.4);
+						//std::cout << depth << std::endl;
+					}
+					filmTile->AddSample(cameraSample.pFilm, Spectrum(depth), rayWeight);
 				} while (tileSampler->StartNextSample());
 			}
 			myCam.film->MergeFilmTile(std::move(filmTile));
