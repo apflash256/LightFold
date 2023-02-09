@@ -29,6 +29,15 @@ namespace lightfold {
 
     inline float UniformHemispherePdf() { return Inv2Pi; }
 
+    inline Tangent3f UniformSampleSphere(const Point2f& u) {
+        float z = 1 - 2 * u[0];
+        float r = std::sqrt(std::max(0.f, 1.f - z * z));
+        float phi = 2 * Pi * u[1];
+        return Tangent3f(r * std::cos(phi), r * std::sin(phi), z);
+    }
+
+    inline float UniformSpherePdf() { return Inv4Pi; }
+
     inline Tangent3f CosineSampleHemisphere(const Tuple2<float>& u) {
         Point2f d = ConcentricSampleDisk(u);
         float z = std::sqrt(std::max(0.f, 1 - d.x * d.x - d.y * d.y));
@@ -36,5 +45,10 @@ namespace lightfold {
     }
 
     inline float CosineHemispherePdf(float cosTheta) { return cosTheta * InvPi; }
+
+    inline float PowerHeuristic(int nf, float fPdf, int ng, float gPdf) {
+        float f = nf * fPdf, g = ng * gPdf;
+        return (f * f) / (f * f + g * g);
+    }
 
 } // namespace lightfold

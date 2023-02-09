@@ -18,6 +18,7 @@ namespace lightfold {
         virtual void FromRGB(const RGB& rgb) = 0;
         virtual bool IsBlack() const = 0;
         virtual bool HasNaNs() const = 0;
+        virtual float Value() const = 0;
     };
 
     class BW : public Spectra {
@@ -32,6 +33,9 @@ namespace lightfold {
         }
         bool HasNaNs() const {
             return std::isnan(intensity);
+        }
+        float Value() const {
+            return intensity;
         }
 
         BW operator+(const BW& s) const { return { intensity + s.intensity }; }

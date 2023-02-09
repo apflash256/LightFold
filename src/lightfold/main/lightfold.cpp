@@ -1,6 +1,10 @@
 #include <core/scene.h>
 #include <aggregate/bvh.h>
+#include <light/pointlight.h>
+#include <material/matte.h>
+#include <texture/constanttexture.h>
 #include <utils/uvsphere.h>
+#include <integrator/directlighting.h>
 
 constexpr auto WIDTH = 3840;
 constexpr auto HEIGHT = 2160;
@@ -19,51 +23,38 @@ int main(void) {
 	Point3f look(0, 0, 0);
 	Tangent3f up(0, 0, 1);
 	Transform c2w = Inverse(LookAt(pos, look, up));
+	AnimatedTransform c2wa(c2w, 0, c2w, 1);
 	Bounds2f screenWindow = { {-((float)WIDTH) / HEIGHT, -1.f},{((float)WIDTH) / HEIGHT, 1.f} };
 	float lensRadius = 0.f, focalDistance = 0.04f, fov = 1.0f;
-	PerspectiveCamera myCam(c2w, screenWindow, lensRadius, focalDistance, fov, &myFilm);
+	std::shared_ptr<Camera> myCam = std::make_shared<PerspectiveCamera>(c2wa, screenWindow,
+		0, 0, lensRadius, focalDistance, fov, &myFilm, nullptr);
 
-	Bounds2i sampleBounds = myCam.film->GetSampleBounds();
+	Bounds2i sampleBounds = myCam->film->GetSampleBounds();
 	Vector2i sampleExtent = sampleBounds.Diagonal();
 	const int tileSize = 16;
 	Point2i nTiles((sampleExtent.x + tileSize - 1) / tileSize, (sampleExtent.y + tileSize - 1) / tileSize);
 
-	auto prims = UVSphere(12, 24);
+	std::shared_ptr<Texture<Spectrum>> color =
+		std::make_shared<ConstantTexture<Spectrum>>(Spectrum(0.6f));
+	std::shared_ptr<Texture<float>> roughness =
+		std::make_shared<ConstantTexture<float>>(0.9f);
+	std::shared_ptr<Material> myMaterial =
+		std::make_shared<MatteMaterial>(color, roughness);
+	auto prims = UVSphere(12, 24, myMaterial, nullptr, MediumInterface());
 	std::shared_ptr<Primitive> bvh = std::make_shared<BVHAccel>(prims);
 
-	HaltonSampler mySampler(SPP, sampleBounds);
-	ParallelInit();
-	ParallelFor2D(
-		[&](Point2i tile) {
-			int seed = tile.y * nTiles.x + tile.x;
-			std::unique_ptr<Sampler> tileSampler = mySampler.Clone(seed);
+	Transform ltw = Translate(Tangent3f(0, 0, 3));
+	std::shared_ptr<Light> myLight = std::make_shared<PointLight>(ltw, nullptr, Spectrum(100));
+	std::vector<std::shared_ptr<Light>> myLights = { myLight };
 
-			int x0 = sampleBounds.pMin.x + tile.x * tileSize;
-			int x1 = std::min(x0 + tileSize, sampleBounds.pMax.x);
-			int y0 = sampleBounds.pMin.y + tile.y * tileSize;
-			int y1 = std::min(y0 + tileSize, sampleBounds.pMax.y);
-			Bounds2i tileBounds(Point2i(x0, y0), Point2i(x1, y1));
+	Scene myScene(bvh, myLights);
 
-			std::unique_ptr<FilmTile> filmTile = myCam.film->GetFilmTile(tileBounds);
-			for (Point2i pixel : tileBounds) {
-				tileSampler->StartPixel(pixel);
-				do {
-					CameraSample cameraSample = tileSampler->GetCameraSample(pixel);
-					Ray ray;
-					float rayWeight = myCam.GenerateRay(cameraSample, &ray);
-					SurfaceInteraction isect;
-					float depth = 0;
-					if (bvh->Intersect(ray, &isect)) {
-						depth = 1.f / (Length(isect.p - pos) - 1.4);
-						//std::cout << depth << std::endl;
-					}
-					filmTile->AddSample(cameraSample.pFilm, Spectrum(depth), rayWeight);
-				} while (tileSampler->StartNextSample());
-			}
-			myCam.film->MergeFilmTile(std::move(filmTile));
-		}, nTiles);
-	myCam.film->WriteImage();
-	ParallelCleanup();
+	std::shared_ptr<Sampler> mySampler = std::make_shared<HaltonSampler>(SPP, sampleBounds);
+
+	DirectLightingIntegrator myIntegrator(LightStrategy::UniformSampleAll, 1, myCam,
+		mySampler, Bounds2i({ 0, 0 }, uhd));
+
+	myIntegrator.Render(myScene);
 
 	return 0;
 }

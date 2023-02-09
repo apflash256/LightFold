@@ -1,17 +1,18 @@
 #pragma once
 
 #include <core/bsdf.h>
+#include <math/bsdfmath.h>
 
 namespace lightfold {
 
     class Diffuse : public BSDF {
     public:
-        Diffuse(Spectrum color, float roughness) : color(color), roughness(roughness) {}
+        Diffuse(Spectrum color, float roughness) : color(color), roughness(roughness), BSDF(false) {}
 
         Spectrum distF(const Tangent3f& wo, const Tangent3f& wi) const;
-        Spectrum Sample_F(const Tangent3f& wo, Tangent3f* wi, const Point2f& sample, float* pdf) const;
-        Spectrum reflectance(const Tangent3f& wo, int nSamples, const Point2f* samples) const;
-        Spectrum reflectance(int nSamples, const Point2f* samples1, const Point2f* samples2) const;
+        Spectrum Sample_F(const Tangent3f& wo, Tangent3f* wi, const Point2f& sample, float* pdf, bool isSingular = false) const;
+        //Spectrum reflectance(const Tangent3f& wo, int nSamples, const Point2f* samples) const;
+        //Spectrum reflectance(int nSamples, const Point2f* samples1, const Point2f* samples2) const;
         float Pdf(const Tangent3f& wo, const Tangent3f& wi) const;
 
     private:
@@ -40,7 +41,7 @@ namespace lightfold {
         return { value };
     }
 
-    Spectrum Diffuse::Sample_F(const Tangent3f& wo, Tangent3f* wi, const Point2f& sample, float* pdf) const {
+    Spectrum Diffuse::Sample_F(const Tangent3f& wo, Tangent3f* wi, const Point2f& sample, float* pdf, bool isSingular) const {
         CosineSampleHemisphere(sample);
         if (wo.z > 0) {
             *pdf = Pdf(wo, *wi);

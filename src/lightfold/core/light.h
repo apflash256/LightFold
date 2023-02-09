@@ -16,6 +16,11 @@ namespace lightfold {
         Infinite = 8
     };
 
+    inline bool IsDeltaLight(int flags) {
+        return flags & (int)LightFlags::DeltaPosition ||
+            flags & (int)LightFlags::DeltaDirection;
+    }
+
     class Light {
     public:
         // Light Interface
