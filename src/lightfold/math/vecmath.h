@@ -71,7 +71,7 @@ namespace lightfold {
         static const int nDimensions = 2;
 
         // Tuple2 Public Methods
-        Tuple2() = default;
+        Tuple2() : x(T()), y(T()) {}
         Tuple2(T x, T y) : x(x), y(y) {}
 
         bool operator==(Tuple2<T> c) const {
@@ -98,8 +98,8 @@ namespace lightfold {
         static const int nDimensions = 3;
 
         // Tuple3 Public Methods
-        Tuple3() = default;
-        Tuple3(T x, T y, T z) : x(x), y(y), z(z) { }
+        Tuple3() : x(T()), y(T()), z(T()) {}
+        Tuple3(T x, T y, T z) : x(x), y(y), z(z) {}
 
         bool operator==(Tuple3<T> c) const {
             return x == c.x && y == c.y && z == c.z;
@@ -1064,7 +1064,7 @@ namespace lightfold {
             // Update parametric interval from slab intersection $t$ values
             if (tNear > tFar)
                 std::swap(tNear, tFar);
-            // Update _tFar_ to ensure robust ray--bounds intersection
+            // Update tFar to ensure robust ray--bounds intersection
             tFar *= 1 + 2 * gamma(3);
 
             t0 = tNear > t0 ? tNear : t0;
@@ -1088,7 +1088,7 @@ namespace lightfold {
         float tMax = (bounds[1 - dirIsNeg[0]].x - o.x) * invDir.x;
         float tyMin = (bounds[dirIsNeg[1]].y - o.y) * invDir.y;
         float tyMax = (bounds[1 - dirIsNeg[1]].y - o.y) * invDir.y;
-        // Update _tMax_ and _tyMax_ to ensure robust bounds intersection
+        // Update tMax and tyMax to ensure robust bounds intersection
         tMax *= 1 + 2 * gamma(3);
         tyMax *= 1 + 2 * gamma(3);
 
@@ -1102,7 +1102,7 @@ namespace lightfold {
         // Check for ray intersection against $z$ slab
         float tzMin = (bounds[dirIsNeg[2]].z - o.z) * invDir.z;
         float tzMax = (bounds[1 - dirIsNeg[2]].z - o.z) * invDir.z;
-        // Update _tzMax_ to ensure robust bounds intersection
+        // Update tzMax to ensure robust bounds intersection
         tzMax *= 1 + 2 * gamma(3);
 
         if (tMin > tzMax || tzMin > tMax)

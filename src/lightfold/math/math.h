@@ -8,7 +8,7 @@
 namespace lightfold {
 
     // Mathematical Constants
-    constexpr float ShadowEpsilon = 0.0001f;
+    constexpr float ShadowEpsilon = 0.00001f;
     constexpr float Pi = 3.14159265358979323846f;
     constexpr float InvPi = 0.31830988618379067154f;
     constexpr float Inv2Pi = 0.15915494309189533577f;

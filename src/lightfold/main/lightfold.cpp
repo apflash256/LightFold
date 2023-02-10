@@ -8,7 +8,7 @@
 
 constexpr auto WIDTH = 3840;
 constexpr auto HEIGHT = 2160;
-constexpr auto SPP = 16;
+constexpr auto SPP = 10;
 
 using namespace lightfold;
 
@@ -35,25 +35,23 @@ int main(void) {
 	Point2i nTiles((sampleExtent.x + tileSize - 1) / tileSize, (sampleExtent.y + tileSize - 1) / tileSize);
 
 	std::shared_ptr<Texture<Spectrum>> color =
-		std::make_shared<ConstantTexture<Spectrum>>(Spectrum(0.6f));
+		std::make_shared<ConstantTexture<Spectrum>>(Spectrum(0.6, 0.6, 0.6));
 	std::shared_ptr<Texture<float>> roughness =
-		std::make_shared<ConstantTexture<float>>(0.9f);
+		std::make_shared<ConstantTexture<float>>(0.4f);
 	std::shared_ptr<Material> myMaterial =
 		std::make_shared<MatteMaterial>(color, roughness);
-	auto prims = UVSphere(12, 24, myMaterial, nullptr, MediumInterface());
+	auto prims = UVSphere(120, 240, myMaterial, nullptr, MediumInterface());
 	std::shared_ptr<Primitive> bvh = std::make_shared<BVHAccel>(prims);
 
-	Transform ltw = Translate(Tangent3f(0, 0, 3));
-	std::shared_ptr<Light> myLight = std::make_shared<PointLight>(ltw, nullptr, Spectrum(100));
+	Transform ltw = Translate(Tangent3f(4, 1, 1));
+	std::shared_ptr<Light> myLight = std::make_shared<PointLight>(ltw, nullptr, Spectrum(10, 10, 10));
 	std::vector<std::shared_ptr<Light>> myLights = { myLight };
 
 	Scene myScene(bvh, myLights);
 
 	std::shared_ptr<Sampler> mySampler = std::make_shared<HaltonSampler>(SPP, sampleBounds);
 
-	DirectLightingIntegrator myIntegrator(LightStrategy::UniformSampleAll, 1, myCam,
-		mySampler, Bounds2i({ 0, 0 }, uhd));
-
+	DirectLightingIntegrator myIntegrator(LightStrategy::UniformSampleAll, 1, myCam, mySampler, Bounds2i({ 0, 0 }, uhd));
 	myIntegrator.Render(myScene);
 
 	return 0;

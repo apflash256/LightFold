@@ -71,6 +71,65 @@ namespace lightfold {
         float intensity;
     };
 
-    using Spectrum = BW;
+    class RGBSpectrum : public Spectra {
+    public:
+        // RGBSpectrum Public Methods
+        RGBSpectrum(float intensity = 0) : r(intensity), g(intensity), b(intensity) {}
+        RGBSpectrum(float r, float g, float b) : r(r), g(g), b(b) {}
+
+        bool IsBlack() const { return (r == 0) && (g == 0) && (b == 0); }
+        RGB ToRGB() const { return{ r, g, b }; }
+        void FromRGB(const RGB& rgb) {
+            r = rgb.r;
+            g = rgb.g;
+            b = rgb.b;
+        }
+        bool HasNaNs() const {
+            return std::isnan(r) || std::isnan(g) || std::isnan(b);
+        }
+        float Value() const {
+            return (r + g + b) / 3;
+        }
+
+        RGBSpectrum operator+(const RGBSpectrum& s) const { return { r + s.r, g + s.g, b + s.b }; }
+        RGBSpectrum& operator+=(const RGBSpectrum& s) {
+            r += s.r;
+            g += s.g;
+            b += s.b;
+            return *this;
+        }
+        RGBSpectrum operator-(const RGBSpectrum& s) const { return { r - s.r, g - s.g, b - s.b }; }
+        RGBSpectrum operator/(const RGBSpectrum& s) const { return { r / s.r, g / s.g, b / s.b }; }
+        RGBSpectrum operator*(const RGBSpectrum& s) const { return { r * s.r, g * s.g, b * s.b }; }
+        RGBSpectrum& operator*=(const RGBSpectrum& s) {
+            r *= s.r;
+            g *= s.g;
+            b *= s.b;
+            return *this;
+        }
+        RGBSpectrum operator*(float a) const { return { r * a , g * a, b * a }; }
+        friend inline RGBSpectrum operator*(float a, const RGBSpectrum& s) {
+            return s * a;
+        }
+        RGBSpectrum& operator*=(float a) {
+            r *= a;
+            g *= a;
+            b *= a;
+            return *this;
+        }
+        RGBSpectrum operator/(float a) const { return { r / a , g / a, b / a }; }
+        RGBSpectrum& operator/=(float a) {
+            r /= a;
+            g /= a;
+            b /= a;
+            return *this;
+        }
+        bool operator==(const RGBSpectrum& s) const { return (r == s.r) && (g == s.g) && (b == s.b); }
+        bool operator!=(const RGBSpectrum& s) const { return (r != s.r) || (g != s.g) || (b != s.b); }
+
+        float r, g, b;
+    };
+
+    using Spectrum = RGBSpectrum;
 
 } // namespace lightfold

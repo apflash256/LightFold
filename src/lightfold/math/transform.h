@@ -494,7 +494,7 @@ namespace lightfold {
         if (lengthSquared > 0) {
             float dt = Dot(Abs(d), *oError) / lengthSquared;
             o += d * dt;
-            //        tMax -= dt;
+            tMax -= dt;
         }
         return Ray(o, d, tMax, r.time, r.medium);
     }
@@ -509,7 +509,7 @@ namespace lightfold {
         if (lengthSquared > 0) {
             float dt = Dot(Abs(d), *oErrorOut) / lengthSquared;
             o += d * dt;
-            //        tMax -= dt;
+            tMax -= dt;
         }
         return Ray(o, d, tMax, r.time, r.medium);
     }

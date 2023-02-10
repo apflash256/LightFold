@@ -23,7 +23,7 @@ namespace lightfold {
                 L += EstimateDirect(it, uScattering, *light, uLight, scene, sampler,
                     handleMedia);
             }
-            else {
+           else {
                 // Estimate direct lighting using sample arrays
                 Spectrum Ld(0.f);
                 for (int k = 0; k < nSamples; ++k)
@@ -212,7 +212,7 @@ namespace lightfold {
                         std::cout << "Not-a-number radiance value returned." << std::endl;
                         L = Spectrum(0.f);
                     }
-                    else if (L.Value() < -1e-5) {
+                    else if (L.Value() < 0.f) {
                         std::cout << "Negative luminance value, returned." << std::endl;
                         L = Spectrum(0.f);
                     }

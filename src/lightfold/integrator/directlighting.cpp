@@ -42,8 +42,7 @@ namespace lightfold {
         if (scene.lights.size() > 0) {
             // Compute direct lighting for _DirectLightingIntegrator_ integrator
             if (strategy == LightStrategy::UniformSampleAll)
-                L += UniformSampleAllLights(isect, scene, sampler,
-                    nLightSamples);
+                L += UniformSampleAllLights(isect, scene, sampler, nLightSamples);
             else
                 L += UniformSampleOneLight(isect, scene, sampler);
         }
