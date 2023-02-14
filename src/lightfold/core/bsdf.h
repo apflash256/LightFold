@@ -24,6 +24,11 @@ namespace lightfold {
         // Compute hemispherical-hemispherical reflectance
         virtual float Pdf(const Tangent3f& wo, const Tangent3f& wi) const = 0;
         // Gives the value of the PDF for the given pair of directions
+        Tangent3f LocalToWorld(const Tangent3f& v) const {
+            return Tangent3f(ss.x * v.x + ts.x * v.y + ns.x * v.z,
+                ss.y * v.x + ts.y * v.y + ns.y * v.z,
+                ss.z * v.x + ts.z * v.y + ns.z * v.z);
+        }
 
         // BSDF Public Data
         const bool isSingular;

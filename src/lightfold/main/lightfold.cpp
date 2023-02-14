@@ -5,7 +5,7 @@
 #include <shape/triangle.h>
 #include <texture/constanttexture.h>
 #include <utils/uvsphere.h>
-#include <integrator/directlighting.h>
+#include <integrator/pathtracing.h>
 
 #include <memory>
 
@@ -94,7 +94,7 @@ int main(void) {
 
 	std::shared_ptr<Sampler> mySampler = std::make_shared<HaltonSampler>(SPP, sampleBounds);
 
-	DirectLightingIntegrator myIntegrator(LightStrategy::UniformSampleAll, 1, myCam, mySampler, Bounds2i({ 0, 0 }, uhd));
+	PathIntegrator myIntegrator(5, myCam, mySampler, Bounds2i({ 0, 0 }, uhd));
 	myIntegrator.Render(myScene);
 
 	return 0;

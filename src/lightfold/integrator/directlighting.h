@@ -10,14 +10,12 @@ namespace lightfold {
     public:
         // DirectLightingIntegrator Public Methods
         DirectLightingIntegrator(LightStrategy strategy, int maxDepth,
-            std::shared_ptr<const Camera> camera,
-            std::shared_ptr<Sampler> sampler,
+            std::shared_ptr<const Camera> camera, std::shared_ptr<Sampler> sampler,
             const Bounds2i& pixelBounds)
-            : SamplerIntegrator(camera, sampler, pixelBounds),
-            strategy(strategy),
+            : SamplerIntegrator(camera, sampler, pixelBounds), strategy(strategy),
             maxDepth(maxDepth) {}
-        Spectrum Li(const RayDifferential& ray, const Scene& scene,
-            Sampler& sampler, int depth) const;
+        Spectrum Li(const RayDifferential& ray, const Scene& scene, Sampler& sampler,
+            int depth) const;
         void Preprocess(const Scene& scene, Sampler& sampler);
 
     private:

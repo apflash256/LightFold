@@ -44,8 +44,8 @@ namespace lightfold {
     }
 
     Spectrum Diffuse::Sample_F(const Tangent3f& wo, Tangent3f* wi, const Point2f& sample, float* pdf, bool isSingular) const {
-        CosineSampleHemisphere(sample);
-        if (wo.z > 0) {
+        *wi = LocalToWorld(CosineSampleHemisphere(sample));
+        if (Dot(ns, wo) > 0) {
             *pdf = Pdf(wo, *wi);
             return distF(wo, *wi);
         }
@@ -56,7 +56,7 @@ namespace lightfold {
     }
 
     float Diffuse::Pdf(const Tangent3f& wo, const Tangent3f& wi) const {
-        return SameHemisphere(wo, wi) ? AbsCosTheta(wi) * InvPi : 0;
+        return Dot(ng, wo) * Dot(ng, wi) > 0 ? std::abs(Dot(ns, wi)) * InvPi : 0;
     }
 
 } // namespace lightfold
