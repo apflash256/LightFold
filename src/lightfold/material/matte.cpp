@@ -9,7 +9,7 @@ namespace lightfold {
         Spectrum col = color->Evaluate(*si);
         float rough = roughness->Evaluate(*si);
         if (!col.IsBlack()) {
-            si->bsdf = new Diffuse(col, rough);
+            si->bsdf = new Diffuse(*si, col, rough);
         }
     }
 

@@ -4,6 +4,8 @@
 #include <core/stats.h>
 #include <display/progress.h>
 
+#include <iostream>
+
 namespace lightfold {
 
     Spectrum UniformSampleAllLights(const Interaction& it, const Scene& scene,
@@ -73,8 +75,7 @@ namespace lightfold {
             if (it.IsSurfaceInteraction()) {
                 // Evaluate BSDF for light sampling strategy
                 const SurfaceInteraction& isect = (const SurfaceInteraction&)it;
-                f = isect.bsdf->distF(isect.wo, wi) *
-                    AbsDot(wi, isect.shading.n);
+                f = isect.bsdf->distF(isect.wo, wi) * AbsDot(wi, isect.shading.n);
                 scatteringPdf = isect.bsdf->Pdf(isect.wo, wi);
             }
             else {

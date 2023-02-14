@@ -3,12 +3,14 @@
 #include <core/bsdf.h>
 #include <math/bsdfmath.h>
 
+#include <iostream>
+
 namespace lightfold {
 
     class Diffuse : public BSDF {
     public:
-        Diffuse(Spectrum color, float roughness) : color(color), roughness(roughness), BSDF(false) {}
-
+        Diffuse(const SurfaceInteraction& si, Spectrum color, float roughness) :
+            color(color), roughness(roughness), BSDF(si, false) {}
         Spectrum distF(const Tangent3f& wo, const Tangent3f& wi) const;
         Spectrum Sample_F(const Tangent3f& wo, Tangent3f* wi, const Point2f& sample, float* pdf, bool isSingular = false) const;
         //Spectrum reflectance(const Tangent3f& wo, int nSamples, const Point2f* samples) const;
@@ -16,17 +18,17 @@ namespace lightfold {
         float Pdf(const Tangent3f& wo, const Tangent3f& wi) const;
 
     private:
-        // Diffuse Public Data
+        // Diffuse Private Data
         Spectrum color;
         float roughness;
     };
 
     Spectrum Diffuse::distF(const Tangent3f& wo, const Tangent3f& wi) const {
-        if (CosTheta(wi) <= 0) {
+        if (Dot(ng, wi) <= 0) {
             return { 0 };
         }
-        const float FV = schlick_fresnel(CosTheta(wo));
-        const float FL = schlick_fresnel(CosTheta(wi));
+        const float FV = schlick_fresnel(Dot(ns, wo));
+        const float FL = schlick_fresnel(Dot(ns, wi));
         float f = 0.0f;
 
         // Lambertian component.
@@ -37,8 +39,8 @@ namespace lightfold {
         const float RR = roughness * LH2;
         f += RR * (FL + FV + FL * FV * (RR - 1.0f));
 
-        float value = InvPi * CosTheta(wi) * f;
-        return { value };
+        float value = InvPi * Dot(ns, wi) * f;
+        return color * Spectrum(value);
     }
 
     Spectrum Diffuse::Sample_F(const Tangent3f& wo, Tangent3f* wi, const Point2f& sample, float* pdf, bool isSingular) const {

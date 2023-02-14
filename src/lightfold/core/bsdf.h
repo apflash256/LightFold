@@ -10,7 +10,8 @@ namespace lightfold {
     public:
         // BSDF Interface
         virtual ~BSDF() {}
-        BSDF(bool isSingular) : isSingular(isSingular) {}
+        BSDF(const SurfaceInteraction& si, bool isSingular) : ns(si.shading.n), ng(si.n),
+            ss(Normalize(si.shading.dpdu)), ts(Cross(ns, ss)), isSingular(isSingular) {}
 
         virtual Spectrum distF(const Tangent3f& wo, const Tangent3f& wi) const = 0;
         // Gives the value of the distribution function for the given pair of directions
@@ -26,6 +27,11 @@ namespace lightfold {
 
         // BSDF Public Data
         const bool isSingular;
+
+    protected:
+        // BSDF Protected Data
+        const Normal3f ns, ng;
+        const Tangent3f ss, ts;
     };
 
 } // namespace lightfold

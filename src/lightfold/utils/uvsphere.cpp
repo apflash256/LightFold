@@ -6,7 +6,8 @@
 
 namespace lightfold {
 
-	std::vector<std::shared_ptr<Primitive>> UVSphere(int lats, int longs,
+	std::vector<std::shared_ptr<Primitive>> UVSphere(const Transform* ObjectToWorld,
+		const Transform* WorldToObject, int lats, int longs,
 		const std::shared_ptr<Material>& material,
 		const std::shared_ptr<AreaLight>& areaLight,
 		const MediumInterface& mediumInterface) {
@@ -44,7 +45,7 @@ namespace lightfold {
 			vInds[6 * i * longs - 1] = (i + 1) * longs - 1;
 		}
 		std::vector<std::shared_ptr<Shape>> MyTri = CreateTriangleMesh(
-			&otw, &wto, false, 2 * (lats - 1) * longs, vInds, (lats + 1) * longs, p, nullptr, n, uv);
+			ObjectToWorld, WorldToObject, false, 2 * (lats - 1) * longs, vInds, (lats + 1) * longs, p, nullptr, n, uv);
 		std::vector<std::shared_ptr<Primitive>> prims;
 		for (std::shared_ptr<Shape> shape : MyTri) {
 			prims.push_back(std::make_shared<GeometricPrimitive>(shape, material, areaLight, mediumInterface));
