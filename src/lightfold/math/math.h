@@ -75,6 +75,39 @@ namespace lightfold {
         return (n * MachineEpsilon) / (1 - n * MachineEpsilon);
     }
 
+    inline int Log2Int(uint32_t v) {
+        unsigned long lz = 0;
+        if (_BitScanReverse(&lz, v)) return lz;
+        return 0;
+    }
+    inline int Log2Int(int32_t v) { return Log2Int((uint32_t)v); }
+    inline int Log2Int(uint64_t v) {
+        unsigned long lz = 0;
+        _BitScanReverse64(&lz, v);
+        return lz;
+    }
+    inline int Log2Int(int64_t v) { return Log2Int((uint64_t)v); }
+
+    inline int32_t RoundUpPow2(int32_t v) {
+        v--;
+        v |= v >> 1;
+        v |= v >> 2;
+        v |= v >> 4;
+        v |= v >> 8;
+        v |= v >> 16;
+        return v + 1;
+    }
+    inline int64_t RoundUpPow2(int64_t v) {
+        v--;
+        v |= v >> 1;
+        v |= v >> 2;
+        v |= v >> 4;
+        v |= v >> 8;
+        v |= v >> 16;
+        v |= v >> 32;
+        return v + 1;
+    }
+
     namespace {
         template <int N>
         inline void init(float m[N][N], int i, int j) {}

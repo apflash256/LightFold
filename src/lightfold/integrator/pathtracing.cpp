@@ -34,18 +34,23 @@ namespace lightfold {
             Tangent3f wo = -ray.d, wi;
             float pdf;
             Spectrum f = isect.bsdf->Sample_F(wo, &wi, sampler.Get2D(), &pdf);
-            if (f.IsBlack() || pdf == 0.f)
+            if (f.IsBlack() || pdf == 0.f) {
+                free(isect.bsdf);
                 break;
+            }
             beta *= f * AbsDot(wi, isect.shading.n) / pdf;
             ray = isect.SpawnRay(wi);
             // Account for subsurface scattering, if applicable
             // Something?
             if (bounces > 3) {
                 float q = std::max(.05f, 1 - beta.Value());
-                if (sampler.Get1D() < q)
+                if (sampler.Get1D() < q) {
+                    free(isect.bsdf);
                     break;
+                }
                 beta /= 1 - q;
             }
+            free(isect.bsdf);
         }
         return L;
     }

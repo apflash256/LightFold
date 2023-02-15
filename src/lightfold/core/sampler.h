@@ -158,7 +158,8 @@ namespace lightfold {
         Point2i baseScales, baseExponents;
         int sampleStride;
         int multInverse[2];
-        mutable Point2i pixelForOffset = Point2i(std::numeric_limits<int>::max(), std::numeric_limits<int>::max());
+        mutable Point2i pixelForOffset = Point2i(std::numeric_limits<int>::max(),
+            std::numeric_limits<int>::max());
         mutable int64_t offsetForCurrentPixel;
 
         // HaltonSampler Private Methods
@@ -181,6 +182,26 @@ namespace lightfold {
             *x = yp;
             *y = xp - (d * yp);
         }
+    };
+
+
+    class SobolSampler : public GlobalSampler {
+    public:
+        // SobolSampler Public Methods
+        std::unique_ptr<Sampler> Clone(int seed);
+        SobolSampler(int64_t samplesPerPixel, const Bounds2i& sampleBounds)
+            : GlobalSampler(RoundUpPow2(samplesPerPixel)), sampleBounds(sampleBounds) {
+            resolution = RoundUpPow2(
+                std::max(sampleBounds.Diagonal().x, sampleBounds.Diagonal().y));
+            log2Resolution = Log2Int(resolution);
+        }
+        int64_t GetIndexForSample(int64_t sampleNum) const;
+        float SampleDimension(int64_t index, int dimension) const;
+
+    private:
+        // SobolSampler Private Data
+        const Bounds2i sampleBounds;
+        int resolution, log2Resolution;
     };
 
     template <typename Predicate>

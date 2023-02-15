@@ -9,9 +9,9 @@
 
 #include <memory>
 
-constexpr auto WIDTH = 3840;
-constexpr auto HEIGHT = 2160;
-constexpr auto SPP = 10;
+constexpr auto WIDTH = 1920;
+constexpr auto HEIGHT = 1080;
+constexpr auto SPP = 256;
 
 using namespace lightfold;
 
@@ -40,11 +40,11 @@ int main(void) {
 	Transform sphereotw = Translate({ 0, 0, -1.5 }) * Scale(1.5, 1.5, 1.5);
 	Transform spherewto = Inverse(sphereotw);
 	std::shared_ptr<Texture<Spectrum>> color1 =
-		std::make_shared<ConstantTexture<Spectrum>>(Spectrum(0.9, 0.9, 0.9));
+		std::make_shared<ConstantTexture<Spectrum>>(Spectrum(0.8, 0.8, 0.8));
 	std::shared_ptr<Texture<Spectrum>> color2 =
-		std::make_shared<ConstantTexture<Spectrum>>(Spectrum(0.95, 0.1, 0.1));
+		std::make_shared<ConstantTexture<Spectrum>>(Spectrum(0.8, 0.1, 0.1));
 	std::shared_ptr<Texture<Spectrum>> color3 =
-		std::make_shared<ConstantTexture<Spectrum>>(Spectrum(0.1, 0.95, 0.1));
+		std::make_shared<ConstantTexture<Spectrum>>(Spectrum(0.1, 0.8, 0.1));
 	std::shared_ptr<Texture<float>> roughness =
 		std::make_shared<ConstantTexture<float>>(0.4f);
 	std::shared_ptr<Material> myMaterial1 =
@@ -92,7 +92,7 @@ int main(void) {
 
 	Scene myScene(bvh, myLights);
 
-	std::shared_ptr<Sampler> mySampler = std::make_shared<HaltonSampler>(SPP, sampleBounds);
+	std::shared_ptr<Sampler> mySampler = std::make_shared<SobolSampler>(SPP, sampleBounds);
 
 	PathIntegrator myIntegrator(5, myCam, mySampler, Bounds2i({ 0, 0 }, uhd));
 	myIntegrator.Render(myScene);

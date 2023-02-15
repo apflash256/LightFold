@@ -1,4 +1,5 @@
 #include <core/sampler.h>
+#include <core/sobolmatrices.h>
 
 #include <cassert>
 
@@ -196,6 +197,57 @@ namespace lightfold {
 
     std::unique_ptr<Sampler> HaltonSampler::Clone(int seed) {
         return std::unique_ptr<Sampler>(new HaltonSampler(*this));
+    }
+
+    inline uint64_t SobolIntervalToIndex(const uint32_t m, uint64_t frame,
+        const Point2i& p) {
+        if (m == 0) return 0;
+
+        const uint32_t m2 = m << 1;
+        uint64_t index = uint64_t(frame) << m2;
+
+        uint64_t delta = 0;
+        for (int c = 0; frame; frame >>= 1, ++c)
+            if (frame & 1)  // Add flipped column m + c + 1.
+                delta ^= VdCSobolMatrices[m - 1][c];
+
+        // flipped b
+        uint64_t b = (((uint64_t)((uint32_t)p.x) << m) | ((uint32_t)p.y)) ^ delta;
+
+        for (int c = 0; b; b >>= 1, ++c)
+            if (b & 1)  // Add column 2 * m - c.
+                index ^= VdCSobolMatricesInv[m - 1][c];
+
+        return index;
+    }
+
+    static const float FloatOneMinusEpsilon = 0.99999994;
+
+    inline float SobolSample(int64_t a, int dimension, uint32_t scramble = 0) {
+        uint32_t v = scramble;
+        for (int i = dimension * SobolMatrixSize; a != 0; a >>= 1, i++)
+            if (a & 1) v ^= SobolMatrices32[i];
+        return std::min(v * 2.3283064365386963e-10f /* 1/2^32 */,
+            FloatOneMinusEpsilon);
+    }
+
+    int64_t SobolSampler::GetIndexForSample(int64_t sampleNum) const {
+        return SobolIntervalToIndex(log2Resolution, sampleNum,
+            Point2i(currentPixel - sampleBounds.pMin));
+    }
+
+    float SobolSampler::SampleDimension(int64_t index, int dim) const {
+        float s = SobolSample(index, dim);
+        // Remap Sobol$'$ dimensions used for pixel samples
+        if (dim == 0 || dim == 1) {
+            s = s * resolution + sampleBounds.pMin[dim];
+            s = Clamp(s - currentPixel[dim], 0.f, OneMinusEpsilon);
+        }
+        return s;
+    }
+
+    std::unique_ptr<Sampler> SobolSampler::Clone(int seed) {
+        return std::unique_ptr<Sampler>(new SobolSampler(*this));
     }
 
 } // namespace lightfold
