@@ -33,9 +33,9 @@ namespace lightfold {
             L += beta * UniformSampleOneLight(isect, scene, sampler);
             Tangent3f wo = -ray.d, wi;
             float pdf;
-            Spectrum f = isect.bsdf->Sample_F(wo, &wi, sampler.Get2D(), &pdf);
+            Spectrum f = isect.bsdf->sample_F(wo, &wi, sampler.Get2D(), &pdf);
             if (f.IsBlack() || pdf == 0.f) {
-                free(isect.bsdf);
+                delete(isect.bsdf);
                 break;
             }
             beta *= f * AbsDot(wi, isect.shading.n) / pdf;
@@ -45,12 +45,12 @@ namespace lightfold {
             if (bounces > 3) {
                 float q = std::max(.05f, 1 - beta.Value());
                 if (sampler.Get1D() < q) {
-                    free(isect.bsdf);
+                    delete(isect.bsdf);
                     break;
                 }
                 beta /= 1 - q;
             }
-            free(isect.bsdf);
+            delete(isect.bsdf);
         }
         return L;
     }

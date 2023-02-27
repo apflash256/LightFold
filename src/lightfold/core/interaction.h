@@ -11,6 +11,7 @@ namespace lightfold {
     struct Interaction {
         // Interaction Public Methods
         Interaction() : time(0) { }
+        ~Interaction() {}
         Interaction(const Point3f& p, const Normal3f& n, const Tangent3f& pError,
             const Tangent3f& wo, float time,
             const MediumInterface& mediumInterface)
@@ -66,6 +67,7 @@ namespace lightfold {
     public:
         // SurfaceInteraction Public Methods
         SurfaceInteraction() { }
+        ~SurfaceInteraction() { }
         SurfaceInteraction(const Point3f& p, const Tangent3f& pError, const Point2f& uv,
             const Tangent3f& wo, const Tangent3f& dpdu, const Tangent3f& dpdv,
             const Normal3f& dndu, const Normal3f& dndv,

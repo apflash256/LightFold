@@ -1,42 +1,49 @@
 #pragma once
 
+#include <core/lobe.h>
 #include <core/interaction.h>
-#include <core/spectrum.h>
-#include <math/sample.h>
 
 namespace lightfold {
 
     class BSDF {
     public:
-        // BSDF Interface
-        virtual ~BSDF() {}
-        BSDF(const SurfaceInteraction& si, bool isSingular) : ns(si.shading.n), ng(si.n),
-            ss(Normalize(si.shading.dpdu)), ts(Cross(ns, ss)), isSingular(isSingular) {}
-
-        virtual Spectrum distF(const Tangent3f& wo, const Tangent3f& wi) const = 0;
-        // Gives the value of the distribution function for the given pair of directions
-        virtual Spectrum Sample_F(const Tangent3f& wo, Tangent3f* wi, const Point2f& sample,
-            float* pdf, bool isSingular = false) const = 0;
-        // Samples an incident direction from the given outgoing direction and returns the value of the BxDF.
-        virtual Spectrum reflectance(const Tangent3f& wo, int nSamples, const Point2f* samples) const;
-        // Compute hemispherical-directional reflectance
-        virtual Spectrum reflectance(int nSamples, const Point2f* samples1, const Point2f* samples2) const;
-        // Compute hemispherical-hemispherical reflectance
-        virtual float Pdf(const Tangent3f& wo, const Tangent3f& wi) const = 0;
-        // Gives the value of the PDF for the given pair of directions
-        Tangent3f LocalToWorld(const Tangent3f& v) const {
+        // BSDF Public Methods
+        BSDF(const SurfaceInteraction& si)
+            : ns(si.shading.n), ng(si.n), ss(Normalize(si.shading.dpdu)), ts(Cross(ns, ss)) {}
+        ~BSDF() { }
+        void Add(std::shared_ptr<Lobe> b) {
+            lobes.push_back(b);
+        }
+        int NumComponents(LobeType flags = LOBE_ALL) const {
+            int num = 0;
+            for (int i = 0; i < size(lobes); ++i)
+                if (lobes[i]->matchesFlags(flags)) ++num;
+            return num;
+        }
+        Tangent3f worldToLocal(const Tangent3f& v) const {
+            return Tangent3f(Dot(v, ss), Dot(v, ts), Dot(v, ns));
+        }
+        Tangent3f localToWorld(const Tangent3f& v) const {
             return Tangent3f(ss.x * v.x + ts.x * v.y + ns.x * v.z,
                 ss.y * v.x + ts.y * v.y + ns.y * v.z,
                 ss.z * v.x + ts.z * v.y + ns.z * v.z);
         }
+        Spectrum dist_F(const Tangent3f& woW, const Tangent3f& wiW,
+            LobeType flags = LOBE_ALL) const;
+        Spectrum reflectance(int nSamples, const Point2f* samples1, const Point2f* samples2,
+            LobeType flags = LOBE_ALL) const;
+        Spectrum reflectance(const Tangent3f& wo, int nSamples, const Point2f* samples,
+            LobeType flags = LOBE_ALL) const;
+        Spectrum sample_F(const Tangent3f& wo, Tangent3f* wi, const Point2f& u,
+            float* pdf, LobeType type = LOBE_ALL, LobeType* sampledType = nullptr) const;
+        float PDF(const Tangent3f& wo, const Tangent3f& wi, LobeType flags = LOBE_ALL) const;
 
-        // BSDF Public Data
-        const bool isSingular;
-
-    protected:
-        // BSDF Protected Data
+    private:
+        // BSDF Private Data
         const Normal3f ns, ng;
         const Tangent3f ss, ts;
+        std::vector<std::shared_ptr<Lobe>> lobes;
+        friend class MixMaterial;
     };
 
 } // namespace lightfold

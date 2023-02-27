@@ -62,7 +62,8 @@ namespace lightfold {
 
     Spectrum EstimateDirect(const Interaction& it, const Point2f& uScattering,
         const Light& light, const Point2f& uLight, const Scene& scene, Sampler& sampler,
-        bool handleMedia) {
+        bool handleMedia, bool specular) {
+        LobeType bsdfFlags = specular ? LOBE_ALL : LobeType(LOBE_ALL & ~LOBE_SPECULAR);
         Spectrum Ld(0.f);
         // Sample light source with multiple importance sampling
         Tangent3f wi;
@@ -75,8 +76,8 @@ namespace lightfold {
             if (it.IsSurfaceInteraction()) {
                 // Evaluate BSDF for light sampling strategy
                 const SurfaceInteraction& isect = (const SurfaceInteraction&)it;
-                f = isect.bsdf->distF(isect.wo, wi) * AbsDot(wi, isect.shading.n);
-                scatteringPdf = isect.bsdf->Pdf(isect.wo, wi);
+                f = isect.bsdf->dist_F(isect.wo, wi) * AbsDot(wi, isect.shading.n);
+                scatteringPdf = isect.bsdf->PDF(isect.wo, wi);
             }
             else {
                 // Evaluate phase function for light sampling strategy
@@ -101,8 +102,7 @@ namespace lightfold {
                     if (IsDeltaLight(light.flags))
                         Ld += f * Li / lightPdf;
                     else {
-                        float weight =
-                            PowerHeuristic(1, lightPdf, 1, scatteringPdf);
+                        float weight = PowerHeuristic(1, lightPdf, 1, scatteringPdf);
                         Ld += f * Li * weight / lightPdf;
                     }
                 }
@@ -112,10 +112,12 @@ namespace lightfold {
         // Sample BSDF with multiple importance sampling
         if (!IsDeltaLight(light.flags)) {
             Spectrum f;
+            bool sampledSpecular = false;
             if (it.IsSurfaceInteraction()) {
                 // Sample scattered direction for surface interactions
+                LobeType sampledType;
                 const SurfaceInteraction& isect = (const SurfaceInteraction&)it;
-                f = isect.bsdf->Sample_F(isect.wo, &wi, uScattering, &scatteringPdf);
+                f = isect.bsdf->sample_F(isect.wo, &wi, uScattering, &scatteringPdf);
                 f *= AbsDot(wi, isect.shading.n);
             }
             else {

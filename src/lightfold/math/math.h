@@ -88,6 +88,63 @@ namespace lightfold {
     }
     inline int Log2Int(int64_t v) { return Log2Int((uint64_t)v); }
 
+    inline uint64_t hash_shuffle_uint(uint64_t i, uint64_t length, uint64_t seed)
+    {
+        i = i % length;
+        uint64_t mask = (1 << (1 + Log2Int(length - 1))) - 1;
+        do {
+            i ^= seed;
+            i *= 0xe170893d;
+            i ^= seed >> 16;
+            i ^= (i & mask) >> 4;
+            i ^= seed >> 8;
+            i *= 0x0929eb3f;
+            i ^= seed >> 23;
+            i ^= (i & mask) >> 1;
+            i *= 1 | seed >> 27;
+            i *= 0x6935fa69;
+            i ^= (i & mask) >> 11;
+            i *= 0x74dcb303;
+            i ^= (i & mask) >> 2;
+            i *= 0x9e501cc3;
+            i ^= (i & mask) >> 2;
+            i *= 0xc860a3df;
+            i &= mask;
+            i ^= i >> 5;
+        } while (i >= length);
+        return i;
+    }
+
+    inline uint64_t reverse_integer_bits(uint64_t x)
+    {
+        return _byteswap_uint64(x);
+    }
+
+    inline uint64_t reversed_bit_owen(uint64_t n, uint64_t seed)
+    {
+        n ^= n * 0x3d20adea;
+        n += seed;
+        n *= (seed >> 16) | 1;
+        n ^= n * 0x05526c56;
+        n ^= n * 0x53a22864;
+
+        return n;
+    }
+
+    inline uint64_t nested_uniform_scramble(uint64_t i, uint64_t seed)
+    {
+        return reverse_integer_bits(reversed_bit_owen(reverse_integer_bits(i), seed));
+    }
+
+    inline uint64_t hash_wang_seeded_uint(uint64_t i, uint64_t seed)
+    {
+        i = (i ^ 61) ^ seed;
+        i += i << 3;
+        i ^= i >> 4;
+        i *= 0x27d4eb2d;
+        return i;
+    }
+
     inline int32_t RoundUpPow2(int32_t v) {
         v--;
         v |= v >> 1;

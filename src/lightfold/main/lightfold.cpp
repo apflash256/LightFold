@@ -9,9 +9,11 @@
 
 #include <memory>
 
+#include <core/lobe.h>
+
 constexpr auto WIDTH = 1920;
 constexpr auto HEIGHT = 1080;
-constexpr auto SPP = 256;
+constexpr auto SPP = 2;
 
 using namespace lightfold;
 
@@ -94,7 +96,7 @@ int main(void) {
 
 	std::shared_ptr<Sampler> mySampler = std::make_shared<SobolSampler>(SPP, sampleBounds);
 
-	PathIntegrator myIntegrator(5, myCam, mySampler, Bounds2i({ 0, 0 }, uhd));
+	PathIntegrator myIntegrator(20, myCam, mySampler, Bounds2i({ 0, 0 }, uhd));
 	myIntegrator.Render(myScene);
 
 	return 0;

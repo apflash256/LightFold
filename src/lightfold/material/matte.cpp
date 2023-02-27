@@ -1,5 +1,7 @@
 #include <material/matte.h>
-#include <bsdf/diffuse.h>
+
+#include <core/bsdf.h>
+#include <lobe/diffuse.h>
 
 namespace lightfold {
 
@@ -8,8 +10,9 @@ namespace lightfold {
         // Evaluate textures for _MatteMaterial_ material and allocate BRDF
         Spectrum col = color->Evaluate(*si);
         float rough = roughness->Evaluate(*si);
+        si->bsdf = new BSDF(*si);
         if (!col.IsBlack()) {
-            si->bsdf = new Diffuse(*si, col, rough);
+            si->bsdf->Add(std::make_shared<Diffuse>(col, rough));
         }
     }
 
