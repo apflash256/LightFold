@@ -4,7 +4,7 @@
 #include <tinyexr/tinyexr.h>
 namespace lightfold {
 
-    int WriteEXR(std::unique_ptr<float[]> rgb, int width, int height, const char* outfilename) {
+    int WriteEXR(std::unique_ptr<RGB[]> rgb, int width, int height, const char* outfilename) {
         EXRHeader header;
         InitEXRHeader(&header);
 
@@ -20,9 +20,9 @@ namespace lightfold {
 
         // Split RGBRGBRGB... into R, G and B layer
         for (int i = 0; i < width * height; i++) {
-            images[0][i] = rgb[3 * i + 0];
-            images[1][i] = rgb[3 * i + 1];
-            images[2][i] = rgb[3 * i + 2];
+            images[0][i] = rgb[i].r;
+            images[1][i] = rgb[i].g;
+            images[2][i] = rgb[i].b;
         }
 
         float* image_ptr[3];

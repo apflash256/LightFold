@@ -10,7 +10,7 @@ constexpr int height = 720;
 
 int main(void) {
 	char filename[] = "image.exr";
-	std::unique_ptr<float[]> img(new float[width * height * 3]);
+	std::unique_ptr<RGB[]> img(new RGB[width * height]);
 	WriteEXR(std::move(img), width, height, filename);
 	return 0;
 }
