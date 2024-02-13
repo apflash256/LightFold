@@ -6,3 +6,5 @@
 #define RGBSPEC 1
 #define SPECTRAL 2
 #define POLAR 3
+
+#define EUCLIDEAN true
