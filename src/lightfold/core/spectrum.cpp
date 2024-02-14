@@ -3,7 +3,7 @@
 namespace lightfold {
 
 #if SPECTRUM == GERYSCALE
-	RGB Spectrum::getRGB() const {
+	RGB Spectrum::GetRGB() const {
 		return RGB(val, val, val);
 	}
 #endif

@@ -6,9 +6,11 @@ namespace lightfold {
 
 	class Film {
 	public:
-		RGB getPixel() const;
+		// Film Public Methods
+		RGB GetPixel() const;
 
-	private:
+		// Film Public Members
+		int width, height;
 	};
 
 } // namespace lightfold

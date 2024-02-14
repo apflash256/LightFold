@@ -6,7 +6,7 @@ namespace lightfold {
 
 	class Spectrum {
 	public:
-		RGB getRGB() const;
+		RGB GetRGB() const;
 
 	private:
 #if SPECTRUM == GREYSCALE

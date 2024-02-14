@@ -70,9 +70,10 @@ namespace lightfold {
 
     class Point;
     class Vector;
+    class Transformation;
 
-    Point transport(Point p, Vector v, Float multiplier = 1);
-    Vector fromTo(Point p, Point q);
+    Point Transport(Point p, Vector v, Float multiplier = 1);
+    Vector FromTo(Point p, Point q);
 
     class Vector {
     public:
@@ -98,6 +99,13 @@ namespace lightfold {
             if (i == 0) return x;
             if (i == 1) return y;
             return z;
+        }
+
+        Vector operator+(Vector c) const {
+            return Vector(x + c.x, y + c.y, z + c.z);
+        }
+        Vector operator-(Vector c) const {
+            return Vector(x - c.x, y - c.y, z - c.z);
         }
 
         // Vector Public Members
@@ -130,9 +138,27 @@ namespace lightfold {
             return z;
         }
 
+        Normal operator+(Normal c) const {
+            return Normal(x + c.x, y + c.y, z + c.z);
+        }
+        Normal operator-(Normal c) const {
+            return Normal(x - c.x, y - c.y, z - c.z);
+        }
+
         // Normal Public Members
         Float x, y, z;
     };
+
+    Vector operator*(Float c, const Vector v) {
+        return Vector(c * v.x, c * v.y, c * v.z);
+    }
+
+    Normal operator*(Float c, const Normal v) {
+        return Normal(c * v.x, c * v.y, c * v.z);
+    }
+
+    Vector Transform(Vector v, Transformation t) {};
+    Normal Transform(Normal n, Transformation t) {};
 
     class Ray {
     public:
@@ -182,5 +208,45 @@ namespace lightfold {
         Float matrix[3][3];
         Float invmat[3][3];
     };
+
+#if EUCLIDEAN
+    class Point {
+    public:
+        static const int dim = 3;
+
+        // Point Public Methods
+        Point() : x(0), y(0), z(0) {}
+        Point(Float x, Float y, Float z) : x(x), y(y), z(z) {}
+
+        bool operator==(Point c) const {
+            return x == c.x && y == c.y && z == c.z;
+        }
+        bool operator!=(Point c) const {
+            return x != c.x || y != c.y || z != c.z;
+        }
+
+        Float operator[](int i) const {
+            if (i == 0) return x;
+            if (i == 1) return y;
+            return z;
+        }
+        Float& operator[](int i) {
+            if (i == 0) return x;
+            if (i == 1) return y;
+            return z;
+        }
+
+        // Point Public Members
+        Float x, y, z;
+    };
+
+    Point Transport(Point p, Vector v, Float multiplier = 1) {
+        return Point(p.x + multiplier * v.x, p.y + multiplier * v.y, p.z + multiplier * v.z);
+    }
+
+    Vector FromTo(Point p, Point q) {
+        return Vector(q.x - p.x, q.y - p.y, q.z - p.z);
+    }
+#endif
 
 } // namespace lightfold
